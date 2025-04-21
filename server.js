@@ -2,6 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const connectDB = require('./config/db');
 const nguoiDungRoutes = require('./routes/nguoiDung.routes');
+const danhMucRoutes = require ('./routes/danhMuc.routes');
+const sanPhamRoutes = require ('./routes/sanPham.routes');
 
 const app = express();
 
@@ -11,7 +13,9 @@ connectDB();
 // Middleware để đọc JSON
 app.use(express.json());
 
-app.use('/api/nguoi-dung', nguoiDungRoutes);
+app.use('/api/nguoidung', nguoiDungRoutes);
+app.use('/api/danhmuc', danhMucRoutes);
+app.use('/api/sanpham', sanPhamRoutes);
 
 
 // Route kiểm tra
