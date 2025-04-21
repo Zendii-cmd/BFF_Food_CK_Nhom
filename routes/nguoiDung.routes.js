@@ -1,26 +1,28 @@
 const express = require('express');
 const router = express.Router();
+const { auth } = require('../middelwares/auth');
 const nguoiDungController = require('../controllers/nguoiDung.controller');
-const authMiddleware = require('../middelwares/auth.middleware');
 
-// Đăng ký và đăng nhập
-router.post('/signup', nguoiDungController.dangKy);
-router.post('/login', nguoiDungController.dangNhap);
+// Đăng ký và đăng nhập (public)
+router.post('/dangky', nguoiDungController.dangKy);
+router.post('/dangnhap', nguoiDungController.dangNhap);
 
+// Các route yêu cầu xác thực
+router.use(auth);
 
 // Lấy thông tin người dùng hiện tại
 router.get('/me', nguoiDungController.getCurrentUser);
 
 // Cập nhật thông tin cá nhân
-router.put('/me', authMiddleware, nguoiDungController.updateUserInfo);
+router.put('/me', nguoiDungController.updateUserInfo);
 
 // Đổi mật khẩu
-router.put('/me/change-password', authMiddleware, nguoiDungController.changePassword);
+router.put('/doimatkhau', nguoiDungController.changePassword);
 
 // Địa chỉ: thêm, cập nhật, xóa, đặt mặc định
-router.post('/me/address', authMiddleware, nguoiDungController.addAddress);
-router.put('/me/address/:id', authMiddleware, nguoiDungController.updateAddress);
-router.delete('/me/address/:id', authMiddleware, nguoiDungController.deleteAddress);
-router.put('/me/address/:id/default', authMiddleware, nguoiDungController.setDefaultAddress);
+router.post('/diachi', nguoiDungController.addAddress);
+router.put('/diachi/:id', nguoiDungController.updateAddress);
+router.delete('/diachi/:id', nguoiDungController.deleteAddress);
+router.put('/diachi/:id/macdinh', nguoiDungController.setDefaultAddress);
 
 module.exports = router;

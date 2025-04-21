@@ -58,6 +58,7 @@ async function initSampleData() {
     // Tạo admin
     await NguoiDung.create({
       hoTen: 'Quản trị viên',
+      vaiTro: 'admin',
       taiKhoan: {
         email: 'admin@bfffood.com',
         matKhau: hashedPassword

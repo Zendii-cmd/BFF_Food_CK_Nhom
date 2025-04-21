@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-// const { auth, adminAuth } = require('../middleware/auth');
+const { auth, adminAuth } = require('../middelwares/auth');
 const sanPhamController = require('../controllers/sanPham.controller');
 
 // @route   POST /api/sanpham

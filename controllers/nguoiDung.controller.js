@@ -134,13 +134,27 @@ const dangKy = async (req, res) => {
         });
       }
   
-      const token = jwt.sign(
-        { id: nguoiDung._id },
-        JWT_SECRET,
-        { expiresIn: '7d' }
-      );
-  
-      nguoiDung.taiKhoan.matKhau = undefined;
+       // Tạo token
+    const token = jwt.sign(
+      { id: nguoiDung._id, vaiTro: nguoiDung.vaiTro },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN }
+    );
+
+    // Lưu token vào user
+    nguoiDung.tokens = nguoiDung.tokens.concat({ token });
+    await nguoiDung.save();
+
+    res.json({
+      success: true,
+      token,
+      nguoiDung: {
+        id: nguoiDung._id,
+        hoTen: nguoiDung.hoTen,
+        email: nguoiDung.email,
+        vaiTro: nguoiDung.vaiTro
+      }
+    });
   
       res.status(200).json({
         success: true,

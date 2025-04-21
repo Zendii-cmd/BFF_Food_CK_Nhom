@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-// const { auth, adminAuth } = require('../middleware/auth');
+const { auth, adminAuth } = require('../middelwares/auth');
 const danhMucController = require('../controllers/danhMuc.controller');
 
 // @route   POST /api/danhmuc
