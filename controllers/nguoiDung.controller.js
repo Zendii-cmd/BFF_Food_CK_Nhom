@@ -1,5 +1,6 @@
 const NguoiDung = require('../models/NguoiDung.model');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 /**
  * Lấy thông tin người dùng hiện tại
@@ -68,7 +69,7 @@ const updateUserInfo = async (req, res) => {
  */
 const dangKy = async (req, res) => {
     try {
-      const { email, matKhau, hoTen, ngaySinh } = req.body;
+      const { email, matKhau, hoTen } = req.body;
   
       // Kiểm tra email đã tồn tại chưa
       const tonTai = await NguoiDung.findOne({ 'taiKhoan.email': email });
@@ -84,10 +85,11 @@ const dangKy = async (req, res) => {
   
       const nguoiDungMoi = new NguoiDung({
         hoTen,
-        ngaySinh,
+        vaiTro: "nguoidung",
+        // ngaySinh,
         taiKhoan: {
           email,
-          matKhau: matKhauMaHoa
+          matKhau: matKhauMaHoa,         
         }
       });
   
@@ -138,7 +140,7 @@ const dangKy = async (req, res) => {
     const token = jwt.sign(
       { id: nguoiDung._id, vaiTro: nguoiDung.vaiTro },
       process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN }
+      { expiresIn: '5d' }
     );
 
     // Lưu token vào user

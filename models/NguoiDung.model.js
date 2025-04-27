@@ -24,7 +24,11 @@ const TaiKhoanSchema = new mongoose.Schema({
 const NguoiDungSchema = new mongoose.Schema({
   hoTen: { type: String, required: true },
   ngaySinh: Date,
-  vaiTro: String,
+  vaiTro: { type: String, required: true },
+  tokens: [{
+    token: {type: String, required: true}
+  }],
+
   taiKhoan: TaiKhoanSchema,
   danhSachDiaChi: [DiaChiSchema]
 }, { timestamps: true });
