@@ -81,9 +81,9 @@ const connectDB = async () => {
 // }
 
 // Gọi hàm
-(async () => {
-  await connectDB();
-  // await initSampleData();
-})();
+// (async () => {
+//   await connectDB();
+//   // await initSampleData();
+// })();
 
 module.exports = connectDB;

@@ -140,12 +140,14 @@ const dangKy = async (req, res) => {
     const token = jwt.sign(
       { id: nguoiDung._id, vaiTro: nguoiDung.vaiTro },
       process.env.JWT_SECRET,
-      { expiresIn: '5d' }
+      { expiresIn: process.env.JWT_EXPIRES_IN }
     );
 
     // Lưu token vào user
+    if (nguoiDung.tokens) {
     nguoiDung.tokens = nguoiDung.tokens.concat({ token });
     await nguoiDung.save();
+    }
 
     res.json({
       success: true,
@@ -158,7 +160,7 @@ const dangKy = async (req, res) => {
       }
     });
   
-      res.status(200).json({
+     return res.status(200).json({
         success: true,
         message: 'Đăng nhập thành công',
         token,
@@ -166,7 +168,7 @@ const dangKy = async (req, res) => {
       });
     } catch (error) {
       console.error('Lỗi đăng nhập:', error);
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: 'Lỗi server khi đăng nhập'
       });
