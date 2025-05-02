@@ -8,7 +8,7 @@ const auth = async (req, res, next) => {
   try {
     // Lấy token từ header
     const token = req.header('Authorization')?.replace('Bearer ', '');
-    
+    console.log(token)
     if (!token) {
       return res.status(401).json({
         success: false,
@@ -22,8 +22,8 @@ const auth = async (req, res, next) => {
     // Tìm người dùng trong database
     const nguoiDung = await NguoiDung.findOne({
       _id: decoded.id,
-      'taiKhoan.tokens': token
     });
+    console.log(nguoiDung)
 
     if (!nguoiDung) {
       throw new Error('Người dùng không tồn tại hoặc token không hợp lệ');
