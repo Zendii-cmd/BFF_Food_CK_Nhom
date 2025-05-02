@@ -1,20 +1,46 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
-}
+import ForgotPasswordScreen from './component/ForgotPasswordScreen';
+import LoginScreen from './component/LoginScreen';
+import RegisterScreen from './component/RegisterScreen';
+import HomeScreen from './component/HomeScreen';
+import CartScreen from './component/CartScreen';
+import Bottomtab from './component/BottomTab';
+const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator();
+const App = () => {
+    const [user, setUser] = useState(null);
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+    useEffect(() => {
+        const checkToken = async () => {
+            const token = await AsyncStorage.getItem('token');
+            if (token) {
+                setUser(true);
+            }
+        };
+
+        checkToken();
+    }, []);
+
+    return (
+        <NavigationContainer>
+            <Stack.Navigator initialRouteName={user ? "Home" : "Login"}>
+                <Stack.Screen name="Login">
+                    {(props) => <LoginScreen {...props} setUser={setUser} />}
+                </Stack.Screen>
+                <Stack.Screen name="Register" component={RegisterScreen} />
+                <Stack.Screen name="Home"options={{ headerShown: false }}>
+                    {(props) =>
+                        user ? <Bottomtab {...props} /> : <LoginScreen {...props} setUser={setUser} />
+                    }
+                </Stack.Screen>
+                <Stack.Screen name="ForgetPassword" component={ForgotPasswordScreen} />
+            </Stack.Navigator>
+        </NavigationContainer>
+    );
+};
+export default App;
