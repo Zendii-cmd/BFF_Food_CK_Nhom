@@ -149,22 +149,17 @@ const dangKy = async (req, res) => {
     await nguoiDung.save();
     }
 
-    res.json({
-      success: true,
-      token,
-      nguoiDung: {
-        id: nguoiDung._id,
-        hoTen: nguoiDung.hoTen,
-        email: nguoiDung.email,
-        vaiTro: nguoiDung.vaiTro
-      }
-    });
-  
+    console.log(nguoiDung.taiKhoan.email)
      return res.status(200).json({
         success: true,
         message: 'Đăng nhập thành công',
         token,
-        data: nguoiDung
+        data: {
+          id: nguoiDung._id,
+          hoTen: nguoiDung.hoTen,
+          email: nguoiDung.taiKhoan.email,
+          vaiTro: nguoiDung.vaiTro
+        }
       });
     } catch (error) {
       console.error('Lỗi đăng nhập:', error);

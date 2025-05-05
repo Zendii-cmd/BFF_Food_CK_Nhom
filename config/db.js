@@ -80,10 +80,10 @@ const connectDB = async () => {
 //   }
 // }
 
-// Gọi hàm
+// // Gọi hàm
 // (async () => {
 //   await connectDB();
-//   // await initSampleData();
+//   await initSampleData();
 // })();
 
 module.exports = connectDB;

@@ -9,13 +9,13 @@ const thanhToanRoutes = require('./routes/thanhToan.routes');
 const voucherRoutes = require('./routes/voucher.routes');
 
 const app = express();
-
+const cors = require('cors');
 // Kết nối database
 connectDB();
 
 // Middleware để đọc JSON
 app.use(express.json());
-
+app.use(cors());
 app.use('/api/nguoidung', nguoiDungRoutes);
 app.use('/api/danhmuc', danhMucRoutes);
 app.use('/api/sanpham', sanPhamRoutes);
