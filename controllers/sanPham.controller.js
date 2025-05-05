@@ -5,7 +5,7 @@ const SanPham = require('../models/SanPham.model');
  */
 const createSanPham = async (req, res) => {
   try {
-    const { tenSanPham, danhMuc } = req.body;
+    const { tenSanPham, danhMuc, gia } = req.body;
 
     // Kiểm tra tên sản phẩm đã tồn tại chưa
     const existingSanPham = await SanPham.findOne({ tenSanPham });
