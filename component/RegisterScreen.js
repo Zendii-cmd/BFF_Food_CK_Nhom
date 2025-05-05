@@ -3,9 +3,12 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, A
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { authApi } from '../API/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
 
 const RegisterScreen = () => {
-  const [username, setUsername] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -13,26 +16,52 @@ const RegisterScreen = () => {
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
 
-  const handleRegister = async () => {
-    if (!username.trim() || !password.trim()) {
-      return Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ tên người dùng và mật khẩu.');
-    }
-    if (password !== confirmPassword) {
-      return Alert.alert('Lỗi', 'Mật khẩu xác nhận không khớp.');
-    }
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
+  const handleRegister = async () => {
+    if (!name.trim() || !email.trim() || !password.trim()) {
+      return Alert.alert('Lỗi', 'Vui lòng điền đầy đủ thông tin');
+    }
+  
+    if (!validateEmail(email)) {
+      return Alert.alert('Lỗi', 'Email không hợp lệ');
+    }
+  
+    if (!/(?=.*[A-Z])(?=.*[0-9])(?=.{6,})/.test(password)) {
+      return Alert.alert('Lỗi', 'Mật khẩu cần ít nhất 6 ký tự, gồm số và chữ hoa');
+    }
+  
+    if (password !== confirmPassword) {
+      return Alert.alert('Lỗi', 'Mật khẩu xác nhận không khớp');
+    }
+  
     try {
       setLoading(true);
-      await axios.post('http://10.0.135.171:5000/api/register', { username, password });
-      Alert.alert('Thành công', 'Đăng ký thành công. Bạn có thể đăng nhập.');
-      navigation.navigate('Login');
+      
+      // Gọi API đăng ký
+      const res = await authApi.register(name, email, password);
+  
+      Alert.alert('Thành công', 'Đăng ký thành công. Vui lòng đăng nhập.');
+  
+      // Sau khi đăng ký xong, chuyển về màn hình đăng nhập
+      navigation.navigate('Login'); // hoặc 'Đăng Nhập'
+  
     } catch (error) {
-      console.error(error?.response?.data || error.message);
-      Alert.alert('Đăng ký thất bại', error?.response?.data || 'Tên người dùng đã tồn tại');
+      let errorMessage = 'Đăng ký thất bại';
+  
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+  
+      Alert.alert('Lỗi', errorMessage);
     } finally {
       setLoading(false);
     }
   };
+  
 
   const backgroundImage = { uri: 'https://images.unsplash.com/photo-1551218808-94e220e084d2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=60' };
 
@@ -42,15 +71,28 @@ const RegisterScreen = () => {
       <View style={styles.container}>
         <Text style={styles.logo}>BFF FOOD</Text>
 
-        {/* Username */}
+        {/* Name */}
         <View style={styles.inputContainer}>
           <Ionicons name="person-outline" size={20} color="#999" style={styles.icon} />
           <TextInput
             placeholder="Tên người dùng"
-            value={username}
-            onChangeText={setUsername}
+            value={name}
+            onChangeText={setName}
             style={styles.input}
             placeholderTextColor="#999"
+          />
+        </View>
+
+        {/* Email */}
+        <View style={styles.inputContainer}>
+          <Ionicons name="mail-outline" size={20} color="#999" style={styles.icon} />
+          <TextInput
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            style={styles.input}
+            placeholderTextColor="#999"
+            keyboardType="email-address"
             autoCapitalize="none"
           />
         </View>

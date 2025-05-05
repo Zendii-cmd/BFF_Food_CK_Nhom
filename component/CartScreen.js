@@ -125,9 +125,12 @@ export default function CartScreen({ navigation }) {
             <View style={styles.bottomBar}>
                 <Text style={styles.totalText}>${total}</Text>
                 <TouchableOpacity
-                    onPress={() => navigation.navigate('Payment', { cartItems })}
+                    onPress={() => {
+                        const selectedItems = cartItems.filter(item => item.selected);
+                        navigation.navigate('Payment', { cartItems: selectedItems });
+                    }}
                 >
-                    <Text style={{ color: 'white' }}>Mua hàng</Text>
+                    <Text style={{ color: '#FFC107' }}>Mua hàng</Text>
                 </TouchableOpacity>
 
             </View>

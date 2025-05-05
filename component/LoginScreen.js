@@ -1,37 +1,61 @@
 import React, { useState } from 'react';
-import { View, Text, ImageBackground, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import {
+  View, Text, ImageBackground, StyleSheet, TextInput, TouchableOpacity, Alert, ActivityIndicator
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
+import { authApi } from '../API/auth';
 
 const backgroundImage = { uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMh_uabbPJGtNL43dyhJKFCF2iuSkuaAGoFw&s' };
 
 const LoginScreen = ({ setUser }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [secureText, setSecureText] = useState(true); // Mặc định ẩn mật khẩu
+  const [secureText, setSecureText] = useState(true);
+  const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
 
   const handleLogin = async () => {
+    if (!email.trim()) return Alert.alert('Lỗi', 'Vui lòng nhập email');
+    if (!password.trim()) return Alert.alert('Lỗi', 'Vui lòng nhập mật khẩu');
+  
+    setLoading(true);
+  
     try {
-      const response = await axios.post('http://10.0.135.171:5000/api/login', {
-        username: email,
-        password,
-      });
-
-      await AsyncStorage.setItem('token', response.data.token);
-      setUser(true);
-      Alert.alert('Login successful!');
-      navigation.navigate('Home');
+      // 1. Gọi login và nhận luôn object data
+      const result = await authApi.login(email, password);
+      const { token, data } = result;
+  
+      if (!data || !token) {
+        throw new Error('Dữ liệu phản hồi không hợp lệ');
+      }
+  
+      // 2. Lưu token với key userToken cho giống interceptor
+      await AsyncStorage.multiSet([
+        ['userToken', token],
+        ['user', JSON.stringify(data)],
+      ]);
+  
+      // Gọi callback setUser nếu cần
+      setUser && setUser(data);
+  
+      // Điều hướng về Home
+      navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
+  
     } catch (error) {
-      console.error(error?.response?.data || error.message);
-      Alert.alert('Login Failed', 'Invalid username or password');
+      let msg = 'Đăng nhập không thành công';
+      if (error.response?.status === 400) {
+        msg = error.response.data.message || msg;
+      } else if (error.request) {
+        msg = 'Không thể kết nối đến server. Kiểm tra mạng của bạn';
+      } else {
+        msg = error.message;
+      }
+      Alert.alert('Lỗi đăng nhập', msg);
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const toggleSecureEntry = () => {
-    setSecureText(!secureText);
   };
 
   return (
@@ -44,17 +68,17 @@ const LoginScreen = ({ setUser }) => {
 
           {/* Email */}
           <View style={styles.inputWrapper}>
-            <Ionicons name="person-outline" size={20} color="#999" style={styles.icon} />
+            <Ionicons name="mail-outline" size={20} color="#999" style={styles.icon} />
             <TextInput
-              placeholder="Tên đăng nhập"
+              placeholder="Email"
               value={email}
               onChangeText={setEmail}
               style={styles.input}
               placeholderTextColor="#999"
               autoCapitalize="none"
+              keyboardType="email-address"
             />
           </View>
-
 
           {/* Password */}
           <View style={styles.inputWrapper}>
@@ -67,19 +91,23 @@ const LoginScreen = ({ setUser }) => {
               style={styles.input}
               placeholderTextColor="#999"
             />
-            <TouchableOpacity onPress={toggleSecureEntry} style={styles.eyeIcon}>
+            <TouchableOpacity onPress={() => setSecureText(!secureText)} style={styles.eyeIcon}>
               <Ionicons name={secureText ? 'eye-off-outline' : 'eye-outline'} size={20} color="#999" />
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-            <Text style={styles.loginButtonText}>Đăng nhập</Text>
+          {/* Đăng nhập */}
+          <TouchableOpacity style={styles.loginButton} onPress={handleLogin} disabled={loading}>
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.loginButtonText}>Đăng nhập</Text>
+            )}
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => navigation.navigate('ForgetPassword')}>
             <Text style={styles.forgotPassword}>Quên mật khẩu?</Text>
           </TouchableOpacity>
-
 
           <TouchableOpacity style={styles.registerButton} onPress={() => navigation.navigate('Register')}>
             <Text style={styles.registerButtonText}>Tạo tài khoản mới</Text>
@@ -91,10 +119,7 @@ const LoginScreen = ({ setUser }) => {
 };
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-    resizeMode: 'cover',
-  },
+  background: { flex: 1 },
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.4)',
@@ -102,24 +127,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
   },
-  title: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 40,
-  },
+  title: { fontSize: 36, fontWeight: 'bold', color: '#fff', marginBottom: 40 },
   form: {
     width: '100%',
     backgroundColor: 'rgba(255,255,255,0.9)',
     borderRadius: 10,
     padding: 20,
   },
-  label: {
-    fontSize: 20,
-    fontWeight: '600',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
+  label: { fontSize: 20, fontWeight: '600', marginBottom: 20, textAlign: 'center' },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -130,34 +145,21 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingHorizontal: 10,
   },
-  icon: {
-    marginRight: 8,
-  },
-  input: {
-    flex: 1,
-    paddingVertical: 10,
-    fontSize: 16,
-  },
-  eyeIcon: {
-    padding: 4,
-  },
+  icon: { marginRight: 8 },
+  input: { flex: 1, paddingVertical: 10, fontSize: 16 },
+  eyeIcon: { padding: 4 },
   loginButton: {
     backgroundColor: '#FFA500',
     paddingVertical: 12,
     borderRadius: 8,
     marginBottom: 12,
+    alignItems: 'center',
   },
   loginButtonText: {
-    color: '#fff',
-    textAlign: 'center',
-    fontSize: 18,
-    fontWeight: 'bold',
+    color: '#fff', fontSize: 18, fontWeight: 'bold',
   },
   forgotPassword: {
-    color: '#333',
-    textAlign: 'center',
-    marginBottom: 20,
-    textDecorationLine: 'underline',
+    color: '#333', textAlign: 'center', marginBottom: 20, textDecorationLine: 'underline',
   },
   registerButton: {
     backgroundColor: '#FF8C00',
@@ -165,10 +167,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   registerButtonText: {
-    color: '#fff',
-    textAlign: 'center',
-    fontSize: 18,
-    fontWeight: 'bold',
+    color: '#fff', textAlign: 'center', fontSize: 18, fontWeight: 'bold',
   },
 });
 

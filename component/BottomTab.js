@@ -6,7 +6,8 @@ import { Ionicons } from '@expo/vector-icons';
 import HomeScreen from './HomeScreen';
 import CartScreen from './CartScreen';
 import PaymentScreen from './PaymentScreen';
-// import ProfileScreen from './ProfileScreen';
+import VoucherScreen from './VoucherScreen';
+import ProfileScreen from './ProfileScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -17,7 +18,7 @@ const BottomTab = () => {
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
 
-          if (route.name === 'Home') {
+          if (route.name === 'HomeTab') {
             iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'Payment') {
             iconName = focused ? 'wallet' : 'wallet-outline';
@@ -25,6 +26,8 @@ const BottomTab = () => {
             iconName = focused ? 'bag' : 'bag-outline';
           } else if (route.name === 'Profile') {
             iconName = focused ? 'person' : 'person-outline';
+          }else if (route.name === 'Voucher') {
+            iconName = focused ? 'pricetags' : 'pricetags-outline';
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -42,10 +45,11 @@ const BottomTab = () => {
         headerShown: false,
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="HomeTab" component={HomeScreen} />
       <Tab.Screen name="Cart" component={CartScreen} />
       <Tab.Screen name="Payment" component={PaymentScreen} />
-      {/* <Tab.Screen name="Profile" component={ProfileScreen} /> */}
+      <Tab.Screen name="Voucher" component={VoucherScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
 };

@@ -3,11 +3,12 @@ import React from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRoute } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 
 const PaymentScreen = () => {
   const route = useRoute();
   const cartItems = route.params?.cartItems || [];
-
+  const navigation = useNavigation();
   const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2);
 
   return (
@@ -27,16 +28,23 @@ const PaymentScreen = () => {
       {/* Danh sách món ăn */}
       {cartItems.map((item, index) => (
         <View key={index} style={styles.foodItem}>
-          <Text>{item.name}</Text>
-          <Text>${item.price.toFixed(2)} x {item.quantity}</Text>
+          <View>
+            <Text style={{ fontWeight: 'bold' }}>{item.name}</Text>
+            <Text style={{ color: 'gray' }}>${item.price.toFixed(2)} x {item.quantity}</Text>
+          </View>
+          <Text style={{ fontWeight: 'bold' }}>${(item.price * item.quantity).toFixed(2)}</Text>
         </View>
       ))}
 
+
       {/* Voucher */}
-      <View style={styles.voucher}>
+      <TouchableOpacity
+        style={styles.voucher}
+        onPress={() => navigation.navigate('Voucher')}
+      >
         <Ionicons name="pricetags-outline" size={18} color="black" />
         <Text> Voucher</Text>
-      </View>
+      </TouchableOpacity>
 
       {/* Ghi chú */}
       <View style={styles.section}>
