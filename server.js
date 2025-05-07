@@ -24,14 +24,14 @@ app.use('/api/giohang', gioHangRoutes);
 app.use('/api/thanhtoan', thanhToanRoutes);
 app.use('/api/voucher', voucherRoutes);
 
-// Trong file App.js hoặc server.js
-const cors = require('cors');
-app.use(cors()); // Cho phép tất cả domain
-// Hoặc cấu hình chi tiết:
-app.use(cors({
-  origin: 'http://localhost:3000', // Đổi thành IP/domain của React Native
-  methods: ['GET', 'POST', 'PUT', 'DELETE']
-}));
+ 
+
+
+
+
+
+
+
 
 
 const PORT = process.env.PORT || 5000;

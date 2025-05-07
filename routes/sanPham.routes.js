@@ -3,15 +3,17 @@ const router = express.Router();
 const { auth, adminAuth } = require('../middelwares/auth');
 const sanPhamController = require('../controllers/sanPham.controller');
 
+// @route   GET /api/sanpham
+// @desc    Lấy tất cả sản phẩm (có phân trang, lọc, sắp xếp)
+// @access  Public
+router.get('/list', sanPhamController.getAllSanPham);
+
 // @route   POST /api/sanpham
 // @desc    Tạo sản phẩm mới (Admin)
 // @access  Private/Admin
 router.post('/', auth, adminAuth, sanPhamController.createSanPham);
 
-// @route   GET /api/sanpham
-// @desc    Lấy tất cả sản phẩm (có phân trang, lọc, sắp xếp)
-// @access  Public
-router.get('/', sanPhamController.getAllSanPham);
+
 
 // @route   GET /api/sanpham/:id
 // @desc    Lấy chi tiết sản phẩm

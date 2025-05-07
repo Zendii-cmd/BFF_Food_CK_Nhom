@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const mongoosePaginate = require('mongoose-paginate-v2');
 
 const KichThuocSchema = new mongoose.Schema({
   tenKichThuoc: { type: String, required: true },
@@ -21,5 +22,7 @@ const SanPhamSchema = new mongoose.Schema({
   kichThuoc: [KichThuocSchema],
   hoatDong: { type: Boolean, default: true }
 }, { timestamps: true });
+
+SanPhamSchema.plugin(mongoosePaginate);
 
 module.exports = mongoose.model('SanPham', SanPhamSchema);
