@@ -170,6 +170,31 @@ const dangKy = async (req, res) => {
     }
   };
   
+  /**
+ * Đăng xuất
+ */
+const dangXuat = async (req, res) => {
+  try {
+    // Lấy token từ header
+    const token = req.header('Authorization').replace('Bearer ', '');
+    
+    // Lọc bỏ token hiện tại khỏi mảng tokens
+    req.nguoiDung.tokens = req.nguoiDung.tokens.filter(t => t.token !== token);
+    
+    await req.nguoiDung.save();
+    
+    res.status(200).json({
+      success: true,
+      message: 'Đăng xuất thành công'
+    });
+  } catch (error) {
+    console.error('Lỗi khi đăng xuất:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Lỗi server khi đăng xuất'
+    });
+  }
+};
 
 /**
  * Đổi mật khẩu
@@ -340,5 +365,6 @@ module.exports = {
   deleteAddress,
   setDefaultAddress,
   dangKy,
-  dangNhap
+  dangNhap,
+  dangXuat
 };

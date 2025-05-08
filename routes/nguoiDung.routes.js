@@ -17,7 +17,10 @@ router.get('/me', auth, nguoiDungController.getCurrentUser);
 router.put('/me', auth, nguoiDungController.updateUserInfo);
 
 // Đổi mật khẩu
-router.put('/doimatkhau', nguoiDungController.changePassword);
+router.put('/doimatkhau', auth,nguoiDungController.changePassword);
+
+// Đăng xuất
+router.post('/dangxuat', auth, nguoiDungController.dangXuat);
 
 // Địa chỉ: thêm, cập nhật, xóa, đặt mặc định
 router.post('/diachi', auth, nguoiDungController.addAddress);
