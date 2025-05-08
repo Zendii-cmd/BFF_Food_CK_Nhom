@@ -14,8 +14,12 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
 import BottomTab from './BottomTab'; // chỉnh lại đúng đường dẫn nếu cần
-
+import { useTheme } from '../Contexts/ThemeProvider'; // điều chỉnh đường dẫn nếu khác
+import { lightTheme, darkTheme } from '../Contexts/theme'; // điều chỉnh đường dẫn nếu cần
+import { authApi } from '../API/auth';
 const { width } = Dimensions.get('window');
+
+const getThemeColor = (lightColor, darkColor) => (isDarkMode ? darkColor : lightColor);
 
 const bannerImages = [
   { id: '1', uri: 'https://images.unsplash.com/photo-1600891964599-f61ba0e24092?auto=format&fit=crop&w=800&q=60' },
@@ -36,6 +40,8 @@ export default function HomeScreen() {
   const scrollRef = useRef();
   const [currentBanner, setCurrentBanner] = useState(0);
   const [products, setProducts] = useState([]); // <-- Dữ liệu món ăn từ API
+  const { isDarkMode } = useTheme();
+  const theme = isDarkMode ? darkTheme : lightTheme;
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -49,26 +55,29 @@ export default function HomeScreen() {
 
   // GỌI API lấy danh sách món ăn
   useEffect(() => {
-    axios.get('https://your-api-url.com/products')
-      .then(response => {
-        setProducts(response.data); // Cập nhật state
-      })
-      .catch(error => {
-        console.error('Error fetching products', error);
-      });
+    const fetchProducts = async () => {
+      try {
+        const result = await authApi.getAll({ page: 1, limit: 10 });
+        setProducts(result);
+      } catch (error) {
+        console.error('Lỗi khi tải sản phẩm:', error);
+      }
+    };
+
+    fetchProducts();
   }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>BFF FOOD</Text>
-        <View style={styles.searchBox}>
-          <Ionicons name="search-outline" size={20} color="#999" />
+      <View style={[styles.header, { backgroundColor: theme.background }]}>
+        <Text style={[styles.headerTitle, { color: theme.text }]}>BFF FOOD</Text>
+        <View style={[styles.searchBox, { backgroundColor: theme.input }]}>
+          <Ionicons name="search-outline" size={20} color={theme.placeholder} />
           <TextInput
             placeholder="Tìm kiếm món ăn, hoặc cửa hàng"
-            placeholderTextColor="#999"
-            style={styles.searchInput}
+            placeholderTextColor={theme.placeholder}
+            style={[styles.searchInput, { color: theme.text }]}
           />
         </View>
       </View>
@@ -109,20 +118,19 @@ export default function HomeScreen() {
 
         {/* Large product cards */}
         <View style={styles.cardGrid}>
-          {Array.isArray(products) && products.slice(0, 2).map(item => ( // kiểm tra products là mảng trước khi map
-            <TouchableOpacity key={item.id} style={styles.largeCard}>
-              <Image source={{ uri: item.uri }} style={styles.largeCardImage} />
-              <Text style={styles.cardTitle}>{item.title}</Text>
-              <Text style={styles.cardPrice}>${item.price}</Text>
+          {Array.isArray(products) && products.slice(0, 2).map(item => (
+            <TouchableOpacity key={item._id} style={[styles.largeCard, { backgroundColor: theme.card }]}>
+              <Image source={{ uri: item.hinhAnh }} style={styles.largeCardImage} />
+              <Text style={[styles.cardTitle, { color: theme.text }]}>{item.tenSanPham}</Text>
+              <Text style={[styles.cardPrice, { color: theme.text }]}>{item.gia?.toLocaleString()}₫</Text>
               <Text style={styles.cardBuy}>Mua</Text>
             </TouchableOpacity>
           ))}
         </View>
 
+
       </ScrollView>
 
-      {/* Tab Bar */}
-      
     </SafeAreaView>
   );
 }

@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator
+  View, Text, TouchableOpacity, StyleSheet, Switch,
+  Modal, TextInput, ActivityIndicator, Image, SafeAreaView
 } from 'react-native';
 import { authApi } from '../API/auth';
+import { useTheme } from '../Contexts/ThemeProvider';
+import { lightTheme, darkTheme } from '../Contexts/theme';
 
 const ProfileScreen = () => {
   const [user, setUser] = useState(null);
   const [hoTen, setHoTen] = useState('');
   const [ngaySinh, setNgaySinh] = useState('');
-
+  const [modalVisible, setModalVisible] = useState(false);
+  const { isDarkMode, toggleDarkMode } = useTheme();
+  const theme = isDarkMode ? darkTheme : lightTheme;
+  
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -31,12 +32,16 @@ const ProfileScreen = () => {
   const handleUpdate = async () => {
     try {
       const { data } = await authApi.updateUserInfo(hoTen, ngaySinh);
-      alert('Cập nhật thông tin thành công!');
+      alert('Cập nhật thành công!');
       setUser(data);
+      setModalVisible(false);
     } catch (error) {
-      alert('Cập nhật thông tin không thành công.');
-      console.error(error);
+      alert('Cập nhật thất bại!');
     }
+  };
+
+  const handleLogout = () => {
+    alert('Đăng xuất');
   };
 
   if (!user) {
@@ -47,34 +52,88 @@ const ProfileScreen = () => {
     );
   }
 
+  const getThemeColor = (light, dark) => (isDarkMode ? dark : light);
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Thông tin cá nhân</Text>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: getThemeColor('#fff', '#121212') }]}>
+      <View style={[styles.container, { backgroundColor: theme.background }]}>
+        <View style={styles.header}>
+          <View style={styles.info}>
+            <Text style={[styles.name, { color: getThemeColor('#000', '#fff') }]}>{user.hoTen || 'Chưa có tên'}</Text>
+            <Text style={[styles.email, { color: getThemeColor('#666', '#aaa') }]}>@{user.taiKhoan?.tenDangNhap || 'username'}</Text>
+          </View>
+          <TouchableOpacity onPress={() => setModalVisible(true)}>
+            <Text style={[styles.editIcon, { color: getThemeColor('#000', '#fff') }]}>✏️</Text>
+          </TouchableOpacity>
+        </View>
 
-      <View style={styles.field}>
-        <Text style={styles.label}>Họ tên:</Text>
-        <TextInput
-          style={styles.input}
-          value={hoTen}
-          onChangeText={setHoTen}
-          placeholder="Nhập họ tên"
-        />
+        <TouchableOpacity style={[styles.button, { backgroundColor: getThemeColor('#FFA500', '#333') }]}>
+          <Text style={[styles.buttonText, { color: getThemeColor('#000', '#fff') }]}>🏠 Danh sách địa chỉ</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={[styles.button, { backgroundColor: getThemeColor('#FFA500', '#333') }]}>
+          <Text style={[styles.buttonText, { color: getThemeColor('#000', '#fff') }]}>💳 Phương thức thanh toán</Text>
+        </TouchableOpacity>
+
+        <View style={[styles.switchRow, { backgroundColor: getThemeColor('#FFA500', '#333') }]}>
+          <Text style={[styles.switchLabel, { color: getThemeColor('#000', '#fff') }]}>💡 Dark mode</Text>
+          <Switch value={isDarkMode} onValueChange={toggleDarkMode} />
+        </View>
+
+        <TouchableOpacity
+          style={[styles.logoutButton, { backgroundColor: getThemeColor('#FF4500', '#990000') }]}
+          onPress={handleLogout}
+        >
+          <Text style={styles.logoutText}>Đăng xuất</Text>
+        </TouchableOpacity>
+
+        {/* Modal chỉnh sửa */}
+        <Modal visible={modalVisible} transparent animationType="slide">
+          <View style={styles.modalBackground}>
+            <View style={[styles.modalContainer, { backgroundColor: getThemeColor('#fff', '#2a2a2a') }]}>
+              <Text style={[styles.modalTitle, { color: getThemeColor('#000', '#fff') }]}>Chỉnh sửa thông tin</Text>
+
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: getThemeColor('#fff', '#444'),
+                    color: getThemeColor('#000', '#fff'),
+                    borderColor: getThemeColor('#ccc', '#666'),
+                  },
+                ]}
+                placeholder="Họ tên"
+                placeholderTextColor={getThemeColor('#999', '#ccc')}
+                value={hoTen}
+                onChangeText={setHoTen}
+              />
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: getThemeColor('#fff', '#444'),
+                    color: getThemeColor('#000', '#fff'),
+                    borderColor: getThemeColor('#ccc', '#666'),
+                  },
+                ]}
+                placeholder="Ngày sinh (YYYY-MM-DD)"
+                placeholderTextColor={getThemeColor('#999', '#ccc')}
+                value={ngaySinh}
+                onChangeText={setNgaySinh}
+              />
+
+              <TouchableOpacity style={[styles.button, { backgroundColor: getThemeColor('#FFA500', '#555') }]} onPress={handleUpdate}>
+                <Text style={[styles.buttonText, { color: getThemeColor('#000', '#fff') }]}>Lưu</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={() => setModalVisible(false)}>
+                <Text style={{ marginTop: 12, textAlign: 'center', color: getThemeColor('#000', '#fff') }}>Huỷ</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </View>
-
-      <View style={styles.field}>
-        <Text style={styles.label}>Ngày sinh:</Text>
-        <TextInput
-          style={styles.input}
-          value={ngaySinh}
-          onChangeText={setNgaySinh}
-          placeholder="YYYY-MM-DD"
-        />
-      </View>
-
-      <TouchableOpacity style={styles.button} onPress={handleUpdate}>
-        <Text style={styles.buttonText}>Cập nhật</Text>
-      </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -84,41 +143,87 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#fff',
+  },
+  safeArea: {
+    flex: 1,
   },
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  title: {
-    fontSize: 22,
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+  },
+  info: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  name: {
+    fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 24,
   },
-  field: {
-    marginBottom: 16,
+  email: {
+    fontSize: 14,
   },
-  label: {
+  editIcon: {
+    fontSize: 20,
+    padding: 8,
+  },
+  button: {
+    padding: 14,
+    borderRadius: 10,
+    marginTop: 16,
+  },
+  buttonText: {
     fontSize: 16,
-    marginBottom: 6,
+  },
+  switchRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 16,
+    padding: 14,
+    borderRadius: 10,
+  },
+  switchLabel: {
+    fontSize: 16,
+  },
+  logoutButton: {
+    marginTop: 24,
+    padding: 14,
+    borderRadius: 10,
+  },
+  logoutText: {
+    textAlign: 'center',
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    padding: 16,
+  },
+  modalContainer: {
+    borderRadius: 12,
+    padding: 20,
+  },
+  modalTitle: {
+    fontSize: 18,
+    marginBottom: 12,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
     borderRadius: 6,
     paddingHorizontal: 12,
     height: 44,
-  },
-  button: {
-    marginTop: 24,
-    backgroundColor: '#007AFF',
-    paddingVertical: 12,
-    borderRadius: 6,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
+    marginBottom: 12,
   },
 });

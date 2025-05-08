@@ -2,7 +2,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = 'http://192.168.1.225:5000/api'; // ví dụ: http://192.168.1.5:3000/api/auth
+const API_URL = 'http://10.0.129.143:5000/api'; // ví dụ: http://192.168.1.5:3000/api/auth
 
 const instance = axios.create({
   baseURL: API_URL,
@@ -73,4 +73,15 @@ login: async (email, matKhau) => {
    logout: async () => {
     await AsyncStorage.removeItem('userToken');
   },
+  //Lấy tất cả sản phẩm 
+  getAll: async (params = {}) => {
+    try {
+      const response = await instance.get('/sanpham/list', { params });
+      return response.data.data.sanPhams; // trả về danh sách sản phẩm
+    } catch (error) {
+      console.error('Lỗi khi gọi API sản phẩm:', error);
+      throw error;
+    }
+  }
+
 };

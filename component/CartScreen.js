@@ -1,4 +1,3 @@
-// CartScreen.js
 import React, { useState } from 'react';
 import {
     SafeAreaView,
@@ -9,11 +8,11 @@ import {
     TouchableOpacity,
     StyleSheet,
     Dimensions,
-    CheckBox,
+    Switch,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import BottomTab from './BottomTab'; // chỉnh lại đúng đường dẫn nếu cần
-
+import { useTheme } from '../Contexts/ThemeProvider'; // Import useTheme
+import { lightTheme, darkTheme } from '../Contexts/theme';
 const { width } = Dimensions.get('window');
 
 // Dữ liệu mẫu
@@ -54,6 +53,7 @@ const initialCartItems = [
 
 export default function CartScreen({ navigation }) {
     const [cartItems, setCartItems] = useState(initialCartItems);
+    const { isDarkMode } = useTheme(); // Lấy giá trị từ Context
 
     const handleQuantityChange = (id, delta) => {
         setCartItems(prev =>
@@ -78,72 +78,72 @@ export default function CartScreen({ navigation }) {
         .reduce((sum, item) => sum + item.price * item.quantity, 0)
         .toFixed(2);
 
+    // Chọn theme dựa trên chế độ sáng/tối
+    const theme = isDarkMode ? darkTheme : lightTheme;
+
     return (
-        <SafeAreaView style={styles.container}>
-            {/* Header */}
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Ionicons name="arrow-back" size={24} color="#333" />
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>Giỏ Hàng</Text>
-                <View style={{ width: 24 }} /> {/* Để cân layout */}
-            </View>
+        <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+        {/* Header */}
+        <View style={[styles.header, { backgroundColor: theme.card }]}>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+                <Ionicons name="arrow-back" size={24} color={theme.text} />
+            </TouchableOpacity>
+            <Text style={[styles.headerTitle, { color: theme.text }]}>Giỏ Hàng</Text>
+            <View style={{ width: 24 }} /> {/* Để cân layout */}
+        </View>
 
-            {/* List Cart Items */}
-            <FlatList
-                data={cartItems}
-                keyExtractor={item => item.id}
-                contentContainerStyle={{ padding: 16 }}
-                renderItem={({ item }) => (
-                    <View style={styles.cartItem}>
-                        <TouchableOpacity onPress={() => handleSelectItem(item.id)}>
-                            <Ionicons
-                                name={item.selected ? "checkbox-outline" : "square-outline"}
-                                size={24}
-                                color="#333"
-                            />
-                        </TouchableOpacity>
-                        <Image source={{ uri: item.uri }} style={styles.cartItemImage} />
-                        <View style={{ flex: 1 }}>
-                            <Text style={styles.cartItemTitle}>{item.title}</Text>
-                            <Text style={styles.cartItemPrice}>${item.price}</Text>
-                        </View>
-                        <View style={styles.quantityContainer}>
-                            <TouchableOpacity onPress={() => handleQuantityChange(item.id, -1)}>
-                                <Ionicons name="remove" size={20} color="#FFA500" />
-                            </TouchableOpacity>
-                            <Text style={styles.quantityText}>{item.quantity}</Text>
-                            <TouchableOpacity onPress={() => handleQuantityChange(item.id, 1)}>
-                                <Ionicons name="add" size={20} color="#FFA500" />
-                            </TouchableOpacity>
-                        </View>
+        {/* List Cart Items */}
+        <FlatList
+            data={cartItems}
+            keyExtractor={item => item.id}
+            contentContainerStyle={{ padding: 16 }}
+            renderItem={({ item }) => (
+                <View style={[styles.cartItem, { backgroundColor: theme.card }]}>
+                    <TouchableOpacity onPress={() => handleSelectItem(item.id)}>
+                        <Ionicons
+                            name={item.selected ? "checkbox-outline" : "square-outline"}
+                            size={24}
+                            color={theme.text}
+                        />
+                    </TouchableOpacity>
+                    <Image source={{ uri: item.uri }} style={styles.cartItemImage} />
+                    <View style={{ flex: 1 }}>
+                        <Text style={[styles.cartItemTitle, { color: theme.text }]}>{item.title}</Text>
+                        <Text style={[styles.cartItemPrice, { color: theme.placeholder }]}>${item.price}</Text>
                     </View>
-                )}
-            />
+                    <View style={[styles.quantityContainer,{ backgroundColor: theme.card }]}>
+                        <TouchableOpacity onPress={() => handleQuantityChange(item.id, -1)}>
+                            <Ionicons name="remove" size={20} color={theme.text} />
+                        </TouchableOpacity>
+                        <Text style={[styles.quantityText, { color: theme.text }]}>{item.quantity}</Text>
+                        <TouchableOpacity onPress={() => handleQuantityChange(item.id, 1)}>
+                            <Ionicons name="add" size={20} color={theme.text} />
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            )}
+        />
 
-            {/* Bottom Bar */}
-            <View style={styles.bottomBar}>
-                <Text style={styles.totalText}>${total}</Text>
-                <TouchableOpacity
-                    onPress={() => {
-                        const selectedItems = cartItems.filter(item => item.selected);
-                        navigation.navigate('Payment', { cartItems: selectedItems });
-                    }}
-                >
-                    <Text style={{ color: '#FFC107' }}>Mua hàng</Text>
-                </TouchableOpacity>
-
-            </View>
-
-        </SafeAreaView>
-
+        {/* Bottom Bar */}
+        <View style={[styles.bottomBar, { backgroundColor: theme.card }]}>
+            
+            <Text style={[styles.totalText, { color: theme.text }]}>${total}</Text>
+            <TouchableOpacity
+                onPress={() => {
+                    const selectedItems = cartItems.filter(item => item.selected);
+                    navigation.navigate('Payment', { cartItems: selectedItems });
+                }}
+            >
+                <Text style={{ color: theme.text }}>Mua hàng</Text>
+            </TouchableOpacity>
+        </View>
+    </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FFC107',
     },
     header: {
         flexDirection: 'row',
@@ -151,15 +151,12 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         height: 50,
         justifyContent: 'space-between',
-        backgroundColor: '#FFC107',
     },
     headerTitle: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#333',
     },
     cartItem: {
-        backgroundColor: '#fff',
         borderRadius: 12,
         flexDirection: 'row',
         alignItems: 'center',
@@ -194,7 +191,6 @@ const styles = StyleSheet.create({
     quantityText: {
         marginHorizontal: 8,
         fontWeight: 'bold',
-        color: '#333',
     },
     bottomBar: {
         flexDirection: 'row',
@@ -202,21 +198,10 @@ const styles = StyleSheet.create({
         padding: 16,
         borderTopWidth: 1,
         borderTopColor: '#ddd',
-        backgroundColor: '#fff',
         alignItems: 'center',
     },
     totalText: {
         fontSize: 20,
-        fontWeight: 'bold',
-    },
-    buyButton: {
-        backgroundColor: '#FFA500',
-        paddingHorizontal: 20,
-        paddingVertical: 10,
-        borderRadius: 12,
-    },
-    buyButtonText: {
-        color: '#fff',
         fontWeight: 'bold',
     },
 });
