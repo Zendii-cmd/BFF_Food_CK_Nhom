@@ -18,6 +18,7 @@ import { useTheme } from '../Contexts/ThemeProvider'; // điều chỉnh đườ
 import { lightTheme, darkTheme } from '../Contexts/theme'; // điều chỉnh đường dẫn nếu cần
 import { authApi } from '../API/auth';
 const { width } = Dimensions.get('window');
+import { useNavigation } from '@react-navigation/native';
 
 const getThemeColor = (lightColor, darkColor) => (isDarkMode ? darkColor : lightColor);
 
@@ -42,6 +43,7 @@ export default function HomeScreen() {
   const [products, setProducts] = useState([]); // <-- Dữ liệu món ăn từ API
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? darkTheme : lightTheme;
+  const navigation = useNavigation();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -118,8 +120,11 @@ export default function HomeScreen() {
 
         {/* Large product cards */}
         <View style={styles.cardGrid}>
-          {Array.isArray(products) && products.slice(0, 2).map(item => (
-            <TouchableOpacity key={item._id} style={[styles.largeCard, { backgroundColor: theme.card }]}>
+          {Array.isArray(products) && products.slice(0, 3).map(item => (
+            <TouchableOpacity key={item._id} 
+                style={[styles.largeCard, 
+                { backgroundColor: theme.card }]}
+                onPress={() => navigation.navigate('ChiTietSanPham', { id: item._id })}>
               <Image source={{ uri: item.hinhAnh }} style={styles.largeCardImage} />
               <Text style={[styles.cardTitle, { color: theme.text }]}>{item.tenSanPham}</Text>
               <Text style={[styles.cardPrice, { color: theme.text }]}>{item.gia?.toLocaleString()}₫</Text>
@@ -151,7 +156,7 @@ const styles = StyleSheet.create({
   smallAdImage: { width: '100%', height: '100%', borderRadius: 12 },
   cardGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', paddingHorizontal: 16, marginTop: 16 },
   largeCard: { backgroundColor: '#fff', borderRadius: 12, width: (width - 48) / 2, padding: 8, marginBottom: 16 },
-  largeCardImage: { width: '100%', height: 100, borderRadius: 12 },
+  largeCardImage: { width: '100%', height: 180, borderRadius: 12 },
   cardTitle: { marginTop: 8, fontSize: 16, fontWeight: '600' },
   cardPrice: { fontSize: 14, marginTop: 4 },
   cardBuy: { color: '#FFA500', marginTop: 4, fontWeight: 'bold' },

@@ -2,7 +2,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = 'http://10.0.129.143:5000/api'; // ví dụ: http://192.168.1.5:3000/api/auth
+const API_URL = 'http://172.20.10.3:5000/api'; // ví dụ: http://192.168.1.5:3000/api/auth
 
 const instance = axios.create({
   baseURL: API_URL,
@@ -29,22 +29,22 @@ export const authApi = {
       email,
       matKhau
     }),
-// Đăng nhập
-login: async (email, matKhau) => {
-  try {
-    const { data } = await axios.post(`${API_URL}/nguoidung/dangnhap`, { email, matKhau });
-    if (data.success) {
-      // Lưu token vào AsyncStorage
-      await AsyncStorage.setItem('userToken', data.token);
-      return data; // Trả về thông tin người dùng và token
-    } else {
-      throw new Error(data.message || 'Đăng nhập thất bại');
+  // Đăng nhập
+  login: async (email, matKhau) => {
+    try {
+      const { data } = await axios.post(`${API_URL}/nguoidung/dangnhap`, { email, matKhau });
+      if (data.success) {
+        // Lưu token vào AsyncStorage
+        await AsyncStorage.setItem('userToken', data.token);
+        return data; // Trả về thông tin người dùng và token
+      } else {
+        throw new Error(data.message || 'Đăng nhập thất bại');
+      }
+    } catch (error) {
+      console.log('Lỗi khi đăng nhập:', error);
+      throw error;
     }
-  } catch (error) {
-    console.log('Lỗi khi đăng nhập:', error);
-    throw error;
-  }
-},
+  },
   // Lấy thông tin người dùng hiện tại
   getCurrentUser: async () => {
     try {
@@ -69,10 +69,24 @@ login: async (email, matKhau) => {
       throw error; // Bắt lỗi nếu không thể cập nhật
     }
   },
-   // Đăng xuất
-   logout: async () => {
-    await AsyncStorage.removeItem('userToken');
+  // Đăng xuất
+  logout: async () => {
+    try {
+      const token = await AsyncStorage.getItem('userToken');
+      await instance.post('/nguoidung/dangxuat', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      await AsyncStorage.removeItem('userToken');
+    } catch (error) {
+      console.error('Lỗi khi đăng xuất:', error.response?.data || error.message);
+      throw error;
+    }
   },
+
+
+
   //Lấy tất cả sản phẩm 
   getAll: async (params = {}) => {
     try {
@@ -82,6 +96,58 @@ login: async (email, matKhau) => {
       console.error('Lỗi khi gọi API sản phẩm:', error);
       throw error;
     }
-  }
+  },
+  // Lấy chi tiết sản phẩm theo ID
+  getSanPhamById: async (id) => {
+    try {
+      const response = await instance.get(`/sanpham/${id}`);
+      return response.data.data; // trả về chi tiết sản phẩm
+    } catch (error) {
+      console.error('Lỗi khi lấy chi tiết sản phẩm:', error);
+      throw error;
+    }
+  },
+  //Thêm địa chỉ 
+  addAddress: async (addressData) => {
+    try {
+      const response = await instance.post('/diachi', addressData); // Gọi API thêm địa chỉ
+      return response.data; // Trả về kết quả thêm địa chỉ
+    } catch (error) {
+      console.error('Lỗi khi thêm địa chỉ:', error);
+      throw error;
+    }
+  },
 
+  // Cập nhật địa chỉ
+  updateAddress: async (addressId, updatedData) => {
+    try {
+      const response = await instance.put(`/diachi/${addressId}`, updatedData); // Gọi API cập nhật địa chỉ
+      return response.data; // Trả về kết quả cập nhật địa chỉ
+    } catch (error) {
+      console.error('Lỗi khi cập nhật địa chỉ:', error);
+      throw error;
+    }
+  },
+
+  // Xóa địa chỉ
+  deleteAddress: async (addressId) => {
+    try {
+      const response = await instance.delete(`/diachi/${addressId}`); // Gọi API xóa địa chỉ
+      return response.data; // Trả về kết quả xóa địa chỉ
+    } catch (error) {
+      console.error('Lỗi khi xóa địa chỉ:', error);
+      throw error;
+    }
+  },
+
+  // Đặt địa chỉ mặc định
+  setDefaultAddress: async (addressId) => {
+    try {
+      const response = await instance.put(`/diachi/${addressId}/macdinh`); // Gọi API đặt địa chỉ mặc định
+      return response.data; // Trả về kết quả đặt địa chỉ mặc định
+    } catch (error) {
+      console.error('Lỗi khi đặt địa chỉ mặc định:', error);
+      throw error;
+    }
+  },
 };

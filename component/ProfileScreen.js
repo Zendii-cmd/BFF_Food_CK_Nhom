@@ -6,6 +6,7 @@ import {
 import { authApi } from '../API/auth';
 import { useTheme } from '../Contexts/ThemeProvider';
 import { lightTheme, darkTheme } from '../Contexts/theme';
+import { useNavigation } from '@react-navigation/native';
 
 const ProfileScreen = () => {
   const [user, setUser] = useState(null);
@@ -14,7 +15,7 @@ const ProfileScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const { isDarkMode, toggleDarkMode } = useTheme();
   const theme = isDarkMode ? darkTheme : lightTheme;
-  
+  const navigation = useNavigation();
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -40,10 +41,19 @@ const ProfileScreen = () => {
     }
   };
 
-  const handleLogout = () => {
-    alert('Đăng xuất');
+  const handleLogout = async () => {
+    try {
+      await authApi.logout();
+      // Có thể chuyển về màn hình đăng nhập sau khi logout
+      navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+      alert('Đăng xuất thành công!');
+    } catch (error) {
+      alert('Đăng xuất thất bại!');
+    }
   };
-
+  const handleNavigateToAddAddress = () => {
+    navigation.navigate('AddAddress');
+  };
   if (!user) {
     return (
       <View style={styles.center}>
@@ -67,7 +77,10 @@ const ProfileScreen = () => {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={[styles.button, { backgroundColor: getThemeColor('#FFA500', '#333') }]}>
+        <TouchableOpacity
+          style={[styles.button,
+          { backgroundColor: getThemeColor('#FFA500', '#333') }]}
+          onPress={handleNavigateToAddAddress}>
           <Text style={[styles.buttonText, { color: getThemeColor('#000', '#fff') }]}>🏠 Danh sách địa chỉ</Text>
         </TouchableOpacity>
 
