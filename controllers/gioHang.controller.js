@@ -162,7 +162,57 @@ const xoaKhoiGioHang = async (req, res) => {
   }
 };
 
+const layGioHang = async (req, res) => {
+  try {
+    // Tìm giỏ hàng và populate thông tin sản phẩm
+    const gioHang = await GioHang.findOne({ nguoiDung: req.nguoiDung._id })
+      .populate({
+        path: 'mucGioHang.sanPham',
+        select: 'tenSanPham hinhAnh gia danhMuc kichThuoc'
+      })
+      .populate({
+        path: 'mucGioHang.sanPham.danhMuc',
+        select: 'tenDanhMuc'
+      });
+
+    if (!gioHang) {
+      return res.status(200).json({
+        success: true,
+        data: {
+          mucGioHang: [],
+          tongTien: 0
+        }
+      });
+    }
+
+    // Format lại dữ liệu trả về
+    const formattedGioHang = {
+      ...gioHang.toObject(),
+      mucGioHang: gioHang.mucGioHang.map(item => ({
+        ...item,
+        sanPham: {
+          ...item.sanPham.toObject(),
+          danhMuc: item.sanPham.danhMuc?.tenDanhMuc || 'Không có danh mục'
+        }
+      }))
+    };
+
+    res.status(200).json({
+      success: true,
+      data: formattedGioHang
+    });
+
+  } catch (error) {
+    console.error('Lỗi khi lấy giỏ hàng:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Lỗi server khi lấy giỏ hàng'
+    });
+  }
+};
+
 module.exports = {
   themVaoGioHang,
-  xoaKhoiGioHang
+  xoaKhoiGioHang,
+  layGioHang
 };

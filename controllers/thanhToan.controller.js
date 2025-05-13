@@ -1,4 +1,7 @@
 const PhuongThucThanhToan = require('../models/PhuongThucThanhToan.model');
+const LichSuDonHang = require('../models/LichSuDonHang.model');
+const GioHang = require('../models/GioHang.model');
+const NguoiDung = require('../models/NguoiDung.model');
 
 const themPhuongThucThanhToan = async (req, res) => {
   try {
@@ -147,9 +150,81 @@ const chonMacDinhPhuongThucThanhToan = async (req, res) => {
   }
 };
 
+
+const thanhToanGioHang = async (req, res) => {
+  try {
+    const { diaChiGiaoHangId, phuongThucThanhToanId, ghiChu } = req.body;
+
+    // 1. Kiểm tra giỏ hàng
+    const gioHang = await GioHang.findOne({ nguoiDung: req.nguoiDung._id }).populate('mucGioHang.sanPham');
+    if (!gioHang || gioHang.mucGioHang.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Giỏ hàng trống'
+      });
+    }
+
+    // 2. Kiểm tra địa chỉ giao hàng
+    const user = await NguoiDung.findById(req.nguoiDung._id);
+    const diaChiGiaoHang = user.danhSachDiaChi.id(diaChiGiaoHangId);
+    if (!diaChiGiaoHang) {
+      return res.status(400).json({
+        success: false,
+        message: 'Địa chỉ giao hàng không hợp lệ'
+      });
+    }
+
+    // 3. Kiểm tra phương thức thanh toán
+    const phuongThucThanhToan = await PhuongThucThanhToan.findOne({
+      _id: phuongThucThanhToanId,
+      nguoiDung: req.nguoiDung._id
+    });
+    if (!phuongThucThanhToan) {
+      return res.status(400).json({
+        success: false,
+        message: 'Phương thức thanh toán không hợp lệ'
+      });
+    }
+
+    // 4. Tạo đơn hàng mới
+    const donHang = new LichSuDonHang({
+      nguoiDung: req.nguoiDung._id,
+      danhSachSanPham: gioHang.mucGioHang.map(item => ({
+        sanPham: item.sanPham._id,
+        soLuong: item.soLuong,
+        gia: item.gia,
+        kichThuoc: item.kichThuoc
+      })),
+      diaChiGiaoHang: diaChiGiaoHangId,
+      phuongThucThanhToan: phuongThucThanhToanId,
+      tongTien: gioHang.tongTien,
+      ghiChu
+    });
+
+    await donHang.save();
+
+    // 5. Xóa giỏ hàng sau khi thanh toán
+    await GioHang.findOneAndDelete({ nguoiDung: req.nguoiDung._id });
+
+    res.status(201).json({
+      success: true,
+      message: 'Thanh toán thành công',
+      data: donHang
+    });
+
+  } catch (error) {
+    console.error('Lỗi khi thanh toán:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Lỗi server khi thanh toán'
+    });
+  }
+};
+
 module.exports = {
   themPhuongThucThanhToan,
   suaPhuongThucThanhToan,
   xoaPhuongThucThanhToan,
-  chonMacDinhPhuongThucThanhToan
+  chonMacDinhPhuongThucThanhToan,
+  thanhToanGioHang
 };
