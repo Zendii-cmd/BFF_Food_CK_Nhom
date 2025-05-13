@@ -28,7 +28,7 @@ const GioHangSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'NguoiDung',
     required: true,
-    unique: true
+    // unique: true
   },
   mucGioHang: [MucGioHangSchema],
   tongTien: {
@@ -42,3 +42,4 @@ const GioHangSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model('GioHang', GioHangSchema);
+GioHangSchema.index({ nguoiDung: 1 }, { unique: true }); // Tạo index unique
