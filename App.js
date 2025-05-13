@@ -58,8 +58,8 @@ import Bottomtab from './component/BottomTab';
 import OrderSuccessScreen from './component/OrderSuccessScreen';
 import SanPhamDetailScreen from './component/SanPhamDetailScreen';
 import AddAddressScreen from './component/AddAddressScreen';
-import EditAddressScreen from './component/EditAddressScreen';
-
+import PaymentScreen from './component/PaymentScreen';
+import VoucherScreen from './component/VoucherScreen';
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 const App = () => {
@@ -93,7 +93,8 @@ const App = () => {
                 <Stack.Screen name="ForgetPassword" component={ForgotPasswordScreen} />
                 <Stack.Screen name="ChiTietSanPham" component={SanPhamDetailScreen}options={{ headerShown: false }} />
                 <Stack.Screen name="AddAddress" component={AddAddressScreen}options={{ headerShown: false }} />
-                <Stack.Screen name="EditAddress" component={EditAddressScreen}options={{ headerShown: false }} />
+                <Stack.Screen name="Payment" component={PaymentScreen}options={{ headerShown: false }} />
+                <Stack.Screen name="Voucher" component={VoucherScreen}options={{ headerShown: false }} />
 
             
             </Stack.Navigator>

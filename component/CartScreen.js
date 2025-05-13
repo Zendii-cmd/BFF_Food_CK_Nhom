@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     SafeAreaView,
     View,
@@ -8,62 +8,66 @@ import {
     TouchableOpacity,
     StyleSheet,
     Dimensions,
-    Switch,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { useTheme } from '../Contexts/ThemeProvider'; // Import useTheme
+import { useTheme } from '../Contexts/ThemeProvider';
 import { lightTheme, darkTheme } from '../Contexts/theme';
+import {authApi} from '../API/auth';
+
 const { width } = Dimensions.get('window');
 
-// Dữ liệu mẫu
-const initialCartItems = [
-    {
-        id: '1',
-        title: 'Veggie tomato',
-        price: 9.22,
-        quantity: 1,
-        uri: 'https://images.unsplash.com/photo-1506084868230-bb9d95c24759?auto=format&fit=crop&w=400&q=60',
-        selected: true,
-    },
-    {
-        id: '2',
-        title: 'Fried chicken m.',
-        price: 10.22,
-        quantity: 1,
-        uri: 'https://images.unsplash.com/photo-1570824109315-6fe8c5671f2f?auto=format&fit=crop&w=400&q=60',
-        selected: false,
-    },
-    {
-        id: '3',
-        title: 'Veggie tomato',
-        price: 9.22,
-        quantity: 1,
-        uri: 'https://images.unsplash.com/photo-1506084868230-bb9d95c24759?auto=format&fit=crop&w=400&q=60',
-        selected: false,
-    },
-    {
-        id: '4',
-        title: 'Fried chicken m.',
-        price: 10.22,
-        quantity: 1,
-        uri: 'https://images.unsplash.com/photo-1570824109315-6fe8c5671f2f?auto=format&fit=crop&w=400&q=60',
-        selected: true,
-    },
-];
-
 export default function CartScreen({ navigation }) {
-    const [cartItems, setCartItems] = useState(initialCartItems);
-    const { isDarkMode } = useTheme(); // Lấy giá trị từ Context
+    const [cartItems, setCartItems] = useState([]);
+    const [refreshing, setRefreshing] = useState(false);
+    const { isDarkMode } = useTheme();
+    const theme = isDarkMode ? darkTheme : lightTheme;
 
-    const handleQuantityChange = (id, delta) => {
-        setCartItems(prev =>
-            prev.map(item =>
-                item.id === id
-                    ? { ...item, quantity: Math.max(1, item.quantity + delta) }
-                    : item
-            )
-        );
+    const loadCart = async () => {
+        try {
+            const data = await authApi.getCart();
+            console.log(data);
+            const mappedItems = data.gioHang.mucGioHang.map((item) => ({
+                id: item.sanPham._id,
+                title: item.sanPham.ten,
+                price: item.sanPham.gia,
+                uri: item.sanPham.hinhAnh,
+                quantity: item.soLuong,
+                kichThuoc: item.kichThuoc,
+                ghiChu: item.ghiChu,
+                selected: false,
+            }));
+            setCartItems(mappedItems);
+        } catch (error) {
+            console.error('Lỗi khi tải giỏ hàng:', error);
+        }
     };
+
+    useEffect(() => {
+        loadCart();
+    }, []);
+
+    const handleQuantityChange = async (id, delta) => {
+        try {
+            const item = cartItems.find(item => item.id === id);
+            const newQuantity = item.quantity + delta;
+
+            if (newQuantity <= 0) {
+                await authApi.removeFromCart(id, item.kichThuoc);
+            } else {
+                await authApi.addToCart(id, delta, item.kichThuoc, item.ghiChu);
+            }
+
+            // Cập nhật giỏ hàng trực tiếp trên state để tránh gọi lại loadCart quá nhiều lần
+            setCartItems(prevCartItems =>
+                prevCartItems.map(item =>
+                    item.id === id ? { ...item, quantity: newQuantity } : item
+                )
+            );
+        } catch (error) {
+            console.error('Lỗi khi cập nhật số lượng:', error);
+        }
+    };
+
 
     const handleSelectItem = (id) => {
         setCartItems(prev =>
@@ -72,72 +76,79 @@ export default function CartScreen({ navigation }) {
             )
         );
     };
+    const handleSelectAllItems = () => {
+        const allSelected = cartItems.every(item => item.selected);
+        setCartItems(prev =>
+            prev.map(item => ({ ...item, selected: !allSelected }))
+        );
+    };
+
 
     const total = cartItems
         .filter(item => item.selected)
         .reduce((sum, item) => sum + item.price * item.quantity, 0)
         .toFixed(2);
 
-    // Chọn theme dựa trên chế độ sáng/tối
-    const theme = isDarkMode ? darkTheme : lightTheme;
-
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
-        {/* Header */}
-        <View style={[styles.header, { backgroundColor: theme.card }]}>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-                <Ionicons name="arrow-back" size={24} color={theme.text} />
-            </TouchableOpacity>
-            <Text style={[styles.headerTitle, { color: theme.text }]}>Giỏ Hàng</Text>
-            <View style={{ width: 24 }} /> {/* Để cân layout */}
-        </View>
+            <View style={[styles.header, { backgroundColor: theme.card }]}>
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <Ionicons name="arrow-back" size={24} color={theme.text} />
+                </TouchableOpacity>
+                <Text style={[styles.headerTitle, { color: theme.text }]}>Giỏ Hàng</Text>
+                <View style={{ width: 24 }} />
+            </View>
 
-        {/* List Cart Items */}
-        <FlatList
-            data={cartItems}
-            keyExtractor={item => item.id}
-            contentContainerStyle={{ padding: 16 }}
-            renderItem={({ item }) => (
-                <View style={[styles.cartItem, { backgroundColor: theme.card }]}>
-                    <TouchableOpacity onPress={() => handleSelectItem(item.id)}>
-                        <Ionicons
-                            name={item.selected ? "checkbox-outline" : "square-outline"}
-                            size={24}
-                            color={theme.text}
-                        />
-                    </TouchableOpacity>
-                    <Image source={{ uri: item.uri }} style={styles.cartItemImage} />
-                    <View style={{ flex: 1 }}>
-                        <Text style={[styles.cartItemTitle, { color: theme.text }]}>{item.title}</Text>
-                        <Text style={[styles.cartItemPrice, { color: theme.placeholder }]}>${item.price}</Text>
-                    </View>
-                    <View style={[styles.quantityContainer,{ backgroundColor: theme.card }]}>
-                        <TouchableOpacity onPress={() => handleQuantityChange(item.id, -1)}>
-                            <Ionicons name="remove" size={20} color={theme.text} />
+            <FlatList
+                data={cartItems}
+                keyExtractor={item => item.id}
+                contentContainerStyle={{ padding: 16 }}
+                refreshing={refreshing}
+                onRefresh={loadCart}
+                renderItem={({ item }) => (
+                    <View style={[styles.cartItem, { backgroundColor: theme.card }]}>
+                        <TouchableOpacity onPress={() => handleSelectItem(item.id)}>
+                            <Ionicons
+                                name={item.selected ? "checkbox-outline" : "square-outline"}
+                                size={24}
+                                color={theme.text}
+                            />
                         </TouchableOpacity>
-                        <Text style={[styles.quantityText, { color: theme.text }]}>{item.quantity}</Text>
-                        <TouchableOpacity onPress={() => handleQuantityChange(item.id, 1)}>
-                            <Ionicons name="add" size={20} color={theme.text} />
+                        <TouchableOpacity onPress={handleSelectAllItems}>
+                            <Text style={[styles.selectAllText, { color: theme.text }]}>
+                                {cartItems.every(item => item.selected) ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}
+                            </Text>
                         </TouchableOpacity>
+                        <Image source={{ uri: item.uri }} style={styles.cartItemImage} />
+                        <View style={{ flex: 1 }}>
+                            <Text style={[styles.cartItemTitle, { color: theme.text }]}>{item.title}</Text>
+                            <Text style={[styles.cartItemPrice, { color: theme.placeholder }]}>${item.price}</Text>
+                        </View>
+                        <View style={[styles.quantityContainer, { backgroundColor: theme.card }]}>
+                            <TouchableOpacity onPress={() => handleQuantityChange(item.id, -1)}>
+                                <Ionicons name="remove" size={20} color={theme.text} />
+                            </TouchableOpacity>
+                            <Text style={[styles.quantityText, { color: theme.text }]}>{item.quantity}</Text>
+                            <TouchableOpacity onPress={() => handleQuantityChange(item.id, 1)}>
+                                <Ionicons name="add" size={20} color={theme.text} />
+                            </TouchableOpacity>
+                        </View>
                     </View>
-                </View>
-            )}
-        />
+                )}
+            />
 
-        {/* Bottom Bar */}
-        <View style={[styles.bottomBar, { backgroundColor: theme.card }]}>
-            
-            <Text style={[styles.totalText, { color: theme.text }]}>${total}</Text>
-            <TouchableOpacity
-                onPress={() => {
-                    const selectedItems = cartItems.filter(item => item.selected);
-                    navigation.navigate('Payment', { cartItems: selectedItems });
-                }}
-            >
-                <Text style={{ color: theme.text }}>Mua hàng</Text>
-            </TouchableOpacity>
-        </View>
-    </SafeAreaView>
+            <View style={[styles.bottomBar, { backgroundColor: theme.card }]}>
+                <Text style={[styles.totalText, { color: theme.text }]}>${total}</Text>
+                <TouchableOpacity
+                    onPress={() => {
+                        const selectedItems = cartItems.filter(item => item.selected);
+                        navigation.navigate('Payment', { cartItems: selectedItems });
+                    }}
+                >
+                    <Text style={{ color: theme.text }}>Mua hàng</Text>
+                </TouchableOpacity>
+            </View>
+        </SafeAreaView>
     );
 }
 
@@ -181,7 +192,6 @@ const styles = StyleSheet.create({
     quantityContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#fff',
         borderColor: '#FFA500',
         borderWidth: 1,
         borderRadius: 20,

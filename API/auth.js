@@ -2,7 +2,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = 'http://172.20.10.3:5000/api'; // ví dụ: http://192.168.1.5:3000/api/auth
+const API_URL = 'http://192.168.1.237:5000/api'; // ví dụ: http://192.168.1.5:3000/api/auth
 
 const instance = axios.create({
   baseURL: API_URL,
@@ -150,4 +150,44 @@ export const authApi = {
       throw error;
     }
   },
+  // Thêm sản phẩm vào giỏ hàng
+addToCart: async (sanPhamId, soLuong = 1, kichThuoc = null, ghiChu = '') => {
+  try {
+    const response = await instance.post('/giohang', {
+      sanPhamId,
+      soLuong,
+      kichThuoc,
+      ghiChu,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Lỗi khi thêm vào giỏ hàng:', error);
+    throw error;
+  }
+},
+
+// Xoá sản phẩm khỏi giỏ hàng
+removeFromCart: async (sanPhamId, kichThuoc = null) => {
+  try {
+    const response = await instance.delete(`/giohang/${sanPhamId}`, {
+      data: { kichThuoc },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Lỗi khi xoá khỏi giỏ hàng:', error);
+    throw error;
+  }
+},
+
+// Lấy danh sách giỏ hàng
+getCart: async () => {
+  try {
+    const response = await instance.get('/giohang');
+    return response.data;
+  } catch (error) {
+    console.error('Lỗi khi lấy giỏ hàng:', error);
+    throw error;
+  }
+},
+
 };
