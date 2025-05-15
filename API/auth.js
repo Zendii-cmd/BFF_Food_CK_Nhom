@@ -2,7 +2,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = 'http://192.168.1.237:5000/api'; // ví dụ: http://192.168.1.5:3000/api/auth
+const API_URL = 'http://192.168.1.21:5000/api'; // ví dụ: http://192.168.1.5:3000/api/auth
 
 const instance = axios.create({
   baseURL: API_URL,
@@ -167,11 +167,9 @@ addToCart: async (sanPhamId, soLuong = 1, kichThuoc = null, ghiChu = '') => {
 },
 
 // Xoá sản phẩm khỏi giỏ hàng
-removeFromCart: async (sanPhamId, kichThuoc = null) => {
+removeFromCart: async (sanPhamId= null) => {
   try {
-    const response = await instance.delete(`/giohang/${sanPhamId}`, {
-      data: { kichThuoc },
-    });
+    const response = await instance.delete(`/giohang/${sanPhamId}`);
     return response.data;
   } catch (error) {
     console.error('Lỗi khi xoá khỏi giỏ hàng:', error);
@@ -183,7 +181,7 @@ removeFromCart: async (sanPhamId, kichThuoc = null) => {
 getCart: async () => {
   try {
     const response = await instance.get('/giohang');
-    return response.data;
+    return response.data.data;
   } catch (error) {
     console.error('Lỗi khi lấy giỏ hàng:', error);
     throw error;

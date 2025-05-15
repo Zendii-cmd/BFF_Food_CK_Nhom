@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet, Switch,
-  Modal, TextInput, ActivityIndicator, Image, SafeAreaView
+  Modal, TextInput, ActivityIndicator, Image
 } from 'react-native';
 import { authApi } from '../API/auth';
 import { useTheme } from '../Contexts/ThemeProvider';
 import { lightTheme, darkTheme } from '../Contexts/theme';
 import { useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const ProfileScreen = () => {
   const [user, setUser] = useState(null);

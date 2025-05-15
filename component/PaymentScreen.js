@@ -11,6 +11,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useTheme } from '../Contexts/ThemeProvider';
 import { lightTheme, darkTheme } from '../Contexts/theme';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const PaymentScreen = () => {
   const route = useRoute();
@@ -20,16 +21,26 @@ const PaymentScreen = () => {
   const total = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
-  ).toFixed(2);
+  );
 
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? darkTheme : lightTheme;
-
+ const handleCart= () => {
+        // Chuyển đến trang thanh toán
+        navigation.navigate('Cart');
+    };
   return (
+    
+    <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
     <ScrollView style={[styles.container, { backgroundColor: theme.background }]}>
       {/* Header */}
-      <Text style={[styles.header, { color: theme.text }]}>Thanh toán</Text>
+      <View style={styles.headerRow}>
+        <TouchableOpacity onPress={handleCart}>
+                  <Ionicons name="arrow-back" size={24} color={theme.text} />
 
+        </TouchableOpacity>
+        
+      </View>
       {/* Địa chỉ */}
       <View style={styles.section}>
         <Text style={[styles.sectionTitle, { color: theme.text }]}>Thông người nhận</Text>
@@ -47,11 +58,11 @@ const PaymentScreen = () => {
           <View>
             <Text style={[{ fontWeight: 'bold' }, { color: theme.text }]}>{item.name}</Text>
             <Text style={{ color: theme.placeholder }}>
-              ${item.price.toFixed(2)} x {item.quantity}
+              {item.price} x {item.quantity}
             </Text>
           </View>
           <Text style={[{ fontWeight: 'bold' }, { color: theme.text }]}>
-            ${(item.price * item.quantity).toFixed(2)}
+            {(item.price * item.quantity)}
           </Text>
         </View>
       ))}
@@ -91,11 +102,11 @@ const PaymentScreen = () => {
 
       {/* Tổng tiền */}
       <View style={[styles.totalBox, { backgroundColor: theme.card }]}>
-        <Text style={{ color: theme.text }}>Sản phẩm: ${total}</Text>
-        <Text style={{ color: theme.text }}>Giao hàng: $5.00</Text>
-        <Text style={{ color: theme.text }}>Giảm giá: $0.00</Text>
+        <Text style={{ color: theme.text }}>Sản phẩm: {total} VND</Text>
+        <Text style={{ color: theme.text }}>Giao hàng: 15000 VND</Text>
+        <Text style={{ color: theme.text }}>Giảm giá: 0 VND</Text>
         <Text style={[styles.total, { color: theme.text }]}>
-          Tổng cộng: ${(parseFloat(total) + 5).toFixed(2)}
+          Tổng cộng: {(parseFloat(total) )}
         </Text>
       </View>
 
@@ -104,12 +115,13 @@ const PaymentScreen = () => {
         style={[styles.payButton, { backgroundColor: isDarkMode ? '#990000' : '#FF4500' }]}
         onPress={() => {
           //  Chuyển trang
-          navigation.navigate('OrderSuccess', { total: (parseFloat(total) + 5).toFixed(2) });
+          navigation.navigate('OrderSuccess', { total: (parseFloat(total) + 5) });
         }}>
         
         <Text style={{ color: '#fff', fontWeight: 'bold' }}>Thanh toán</Text>
       </TouchableOpacity>
     </ScrollView>
+    </SafeAreaView>
   );
 };
 

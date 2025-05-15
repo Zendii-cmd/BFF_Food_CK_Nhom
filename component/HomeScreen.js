@@ -1,7 +1,6 @@
 // HomeScreen.js
 import React, { useRef, useEffect, useState } from 'react';
 import {
-  SafeAreaView,
   View,
   Text,
   TextInput,
@@ -19,6 +18,7 @@ import { lightTheme, darkTheme } from '../Contexts/theme'; // điều chỉnh đ
 import { authApi } from '../API/auth';
 const { width } = Dimensions.get('window');
 import { useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const getThemeColor = (lightColor, darkColor) => (isDarkMode ? darkColor : lightColor);
 
