@@ -22,7 +22,8 @@ router.put('/doimatkhau', auth,nguoiDungController.changePassword);
 // Đăng xuất
 router.post('/dangxuat', auth, nguoiDungController.dangXuat);
 
-// Địa chỉ: thêm, cập nhật, xóa, đặt mặc định
+// Địa chỉ: lấy, thêm, cập nhật, xóa, đặt mặc định
+router.get('/diachi', auth, nguoiDungController.getAddressList);
 router.post('/diachi', auth, nguoiDungController.addAddress);
 router.put('/diachi/:id', auth, nguoiDungController.updateAddress);
 router.delete('/diachi/:id', auth, nguoiDungController.deleteAddress);

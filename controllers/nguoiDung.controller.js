@@ -356,10 +356,32 @@ const setDefaultAddress = async (req, res) => {
   }
 };
 
+/**
+ * Lấy danh sách địa chỉ của người dùng
+ */
+const getAddressList = async (req, res) => {
+  try {
+    // Lấy thông tin người dùng đã được xác thực từ middleware auth
+    const nguoiDung = req.nguoiDung;
+    
+    res.status(200).json({
+      success: true,
+      data: nguoiDung.danhSachDiaChi || []
+    });
+  } catch (error) {
+    console.error('Lỗi khi lấy danh sách địa chỉ:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Lỗi server khi lấy danh sách địa chỉ'
+    });
+  }
+};
+
 module.exports = {
   getCurrentUser,
   updateUserInfo,
   changePassword,
+  getAddressList,
   addAddress,
   updateAddress,
   deleteAddress,

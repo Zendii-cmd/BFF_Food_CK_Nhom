@@ -221,10 +221,33 @@ const thanhToanGioHang = async (req, res) => {
   }
 };
 
+/**
+ * Lấy danh sách phương thức thanh toán của người dùng
+ */
+const layDanhSachPhuongThucThanhToan = async (req, res) => {
+  try {
+    const danhSachPhuongThuc = await PhuongThucThanhToan.find({
+      nguoiDung: req.nguoiDung._id
+    }).select('-nguoiDung -createdAt -updatedAt -__v');
+
+    res.status(200).json({
+      success: true,
+      data: danhSachPhuongThuc
+    });
+  } catch (error) {
+    console.error('Lỗi khi lấy danh sách phương thức thanh toán:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Lỗi server khi lấy danh sách phương thức thanh toán'
+    });
+  }
+};
+
 module.exports = {
   themPhuongThucThanhToan,
   suaPhuongThucThanhToan,
   xoaPhuongThucThanhToan,
   chonMacDinhPhuongThucThanhToan,
-  thanhToanGioHang
+  thanhToanGioHang,
+  layDanhSachPhuongThucThanhToan
 };
