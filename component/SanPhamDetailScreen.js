@@ -47,6 +47,7 @@ const SanPhamDetailScreen = () => {
     try {
       await authApi.addToCart(sanPham._id, quantity); // gọi API từ auth.js
       Alert.alert('✅ Thành công', 'Sản phẩm đã được thêm vào giỏ hàng!');
+      navigation.navigate('Home'); // chuyển về trang Home
     } catch (error) {
       Alert.alert('❌ Lỗi', 'Không thể thêm vào giỏ hàng');
     }

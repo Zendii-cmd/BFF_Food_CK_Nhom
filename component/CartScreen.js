@@ -1,21 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  View, 
-  Text, 
-  FlatList, 
-  Image, 
-  StyleSheet, 
-  ActivityIndicator, 
-  TouchableOpacity 
+import {
+  View,
+  Text,
+  FlatList,
+  Image,
+  StyleSheet,
+  ActivityIndicator,
+  TouchableOpacity,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { authApi } from '../API/auth';
+import { useTheme } from '../Contexts/ThemeProvider';
+import { lightTheme, darkTheme } from '../Contexts/theme';
 
 const CartScreen = ({ navigation }) => {
   const [cart, setCart] = useState([]);
   const [tongTien, setTongTien] = useState(0);
   const [loading, setLoading] = useState(true);
+
+  const { isDarkMode } = useTheme();
+  const theme = isDarkMode ? darkTheme : lightTheme;
 
   useEffect(() => {
     const fetchCart = async () => {
@@ -31,7 +36,6 @@ const CartScreen = ({ navigation }) => {
     };
 
     const unsubscribe = navigation.addListener('focus', fetchCart);
-
     fetchCart();
 
     return unsubscribe;
@@ -40,40 +44,31 @@ const CartScreen = ({ navigation }) => {
   const handleRemoveItem = async (item) => {
     try {
       await authApi.removeFromCart(item._id, item.kichThuoc || null);
-
-      // Cập nhật giỏ hàng mới
       const updatedCart = cart.filter(cartItem => cartItem._id !== item._id);
       setCart(updatedCart);
-
-      // Tính lại tổng tiền
       const newTongTien = updatedCart.reduce(
         (sum, cartItem) => sum + cartItem.sanPham.gia * cartItem._doc.soLuong, 0
       );
       setTongTien(newTongTien);
-
     } catch (error) {
       console.error('Lỗi khi xoá sản phẩm:', error);
     }
   };
 
   const renderItem = ({ item }) => (
-    <View style={styles.itemContainer}>
+    <View style={[styles.itemContainer, { backgroundColor: theme.card }]}>
       <Image source={{ uri: item.sanPham.hinhAnh }} style={styles.image} />
       <View style={styles.info}>
-        <Text style={styles.tenSanPham} numberOfLines={1}>
+        <Text style={[styles.tenSanPham, { color: theme.text }]} numberOfLines={1}>
           {item.sanPham.tenSanPham}
         </Text>
-        <Text style={styles.priceText}>
+        <Text style={[styles.priceText, { color: theme.subtext }]}>
           {item.sanPham.gia.toLocaleString()}đ
         </Text>
       </View>
       <View style={styles.quantityContainer}>
-        <Text style={styles.quantityText}>{item._doc.soLuong}</Text>
-
-        <TouchableOpacity 
-          onPress={() => handleRemoveItem(item)} 
-          style={styles.trashButton}
-        >
+        <Text style={[styles.quantityText, { color: theme.text }]}>{item._doc.soLuong}</Text>
+        <TouchableOpacity onPress={() => handleRemoveItem(item)} style={styles.trashButton}>
           <Ionicons name="trash" size={24} color="red" />
         </TouchableOpacity>
       </View>
@@ -81,29 +76,25 @@ const CartScreen = ({ navigation }) => {
   );
 
   const handlePayment = () => {
-  // Lọc dữ liệu cần thiết
-  const simplifiedCartItems = cart.map(item => ({
-    name: item.sanPham.tenSanPham,
-    price: item.sanPham.gia,
-    quantity: item._doc.soLuong,
-  }));
-
-  // Truyền qua màn hình thanh toán
-  navigation.navigate('Payment', { cartItems: simplifiedCartItems });
-};
-
+    const simplifiedCartItems = cart.map(item => ({
+      name: item.sanPham.tenSanPham,
+      price: item.sanPham.gia,
+      quantity: item._doc.soLuong,
+    }));
+    navigation.navigate('Payment', { cartItems: simplifiedCartItems });
+  };
 
   if (loading) {
     return <ActivityIndicator size="large" style={{ flex: 1 }} />;
   }
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]} edges={['top']}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={28} color="#fff" />
+          <Ionicons name="arrow-back" size={28} color={theme.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Giỏ hàng</Text>
+        <Text style={[styles.headerTitle, { color: theme.text }]}>Giỏ hàng</Text>
       </View>
 
       <FlatList
@@ -112,15 +103,15 @@ const CartScreen = ({ navigation }) => {
         renderItem={renderItem}
         contentContainerStyle={{ paddingBottom: 100 }}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>Giỏ hàng trống</Text>
+          <Text style={[styles.emptyText, { color: theme.text }]}>Giỏ hàng trống</Text>
         }
       />
 
-      <View style={styles.totalContainer}>
-        <Text style={styles.totalText}>
+      <View style={[styles.totalContainer, { borderColor: theme.border }]}>
+        <Text style={[styles.totalText, { color: theme.text }]}>
           Tổng tiền: {tongTien.toLocaleString()}đ
         </Text>
-        <TouchableOpacity style={styles.checkoutButton} onPress={handlePayment}>
+        <TouchableOpacity style={[styles.checkoutButton,{ backgroundColor: isDarkMode ? '#990000' : '#FF4500' }]} onPress={handlePayment}>
           <Text style={styles.checkoutText}>Thanh toán</Text>
         </TouchableOpacity>
       </View>
@@ -133,7 +124,6 @@ export default CartScreen;
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFC107',
     paddingTop: 10,
   },
   header: {
@@ -153,7 +143,6 @@ const styles = StyleSheet.create({
   itemContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
     marginBottom: 12,
     borderRadius: 10,
     padding: 10,
@@ -174,7 +163,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   priceText: {
-    color: '#666',
     fontSize: 13,
   },
   quantityContainer: {
@@ -194,15 +182,14 @@ const styles = StyleSheet.create({
   totalContainer: {
     paddingVertical: 16,
     borderTopWidth: 1,
-    borderColor: '#ccc',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingHorizontal: 16,
   },
   totalText: {
     fontSize: 18,
     fontWeight: 'bold',
-    textAlign: 'right',
   },
   checkoutButton: {
     backgroundColor: '#28a745',
@@ -218,7 +205,6 @@ const styles = StyleSheet.create({
   emptyText: {
     textAlign: 'center',
     fontSize: 18,
-    color: '#333',
     marginTop: 20,
   },
 });

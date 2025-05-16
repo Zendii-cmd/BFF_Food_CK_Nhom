@@ -6,32 +6,38 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
-  Switch,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useTheme } from '../Contexts/ThemeProvider';
-import { lightTheme, darkTheme } from '../Contexts/theme';
+import { useTheme } from '../Contexts/ThemeProvider'; // import hook của bạn
+import { lightTheme, darkTheme } from '../Contexts/theme'; // import 2 theme có sẵn
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const VoucherScreen = () => {
-  const [isShippingChecked, setIsShippingChecked] = useState(false);
-  const [voucher1Checked, setVoucher1Checked] = useState(false);
-  const [voucher2Checked, setVoucher2Checked] = useState(false);
-  const [voucher3Checked, setVoucher3Checked] = useState(false);
-
-  const { isDarkMode } = useTheme();
+  const { isDarkMode, toggleDarkMode } = useTheme(); // lấy trạng thái dark mode từ context
   const theme = isDarkMode ? darkTheme : lightTheme;
 
+  const [selectedShipping, setSelectedShipping] = useState(false);
+  const [selectedVoucher, setSelectedVoucher] = useState(null);
+
+  const toggleShipping = () => setSelectedShipping(!selectedShipping);
+  const selectVoucher = (id) => setSelectedVoucher(id === selectedVoucher ? null : id);
+
   return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
+
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       {/* Header */}
       <View style={styles.header}>
-        <Icon name="arrow-back" size={24} color={theme.text} />
+        <TouchableOpacity>
+          <Icon name="arrow-back" size={24} color={theme.text} />
+        </TouchableOpacity>
         <Text style={[styles.headerText, { color: theme.text }]}>Chọn voucher</Text>
+        
       </View>
 
-      {/* Search Bar */}
-      <View style={[styles.searchContainer, { backgroundColor: theme.card }]}>
-        <Icon name="search" size={20} color={theme.placeholder} style={{ marginHorizontal: 10 }} />
+      {/* Search */}
+      <View style={[styles.searchContainer, { backgroundColor: theme.input }]}>
+        <Icon name="search" size={20} color={theme.placeholder} />
         <TextInput
           placeholder="Tìm kiếm voucher"
           placeholderTextColor={theme.placeholder}
@@ -39,42 +45,59 @@ const VoucherScreen = () => {
         />
       </View>
 
-      <ScrollView style={styles.content}>
-        {/* Vận chuyển */}
+      <ScrollView contentContainerStyle={styles.content}>
+        {/* Shipping Voucher */}
         <Text style={[styles.sectionTitle, { color: theme.text }]}>Voucher vận chuyển</Text>
-        <View style={[styles.voucherItem, { backgroundColor: theme.primary }]}>
-          <Icon name="car-outline" size={30} color="#fff" />
-          <Text style={styles.voucherText}>Giảm giá 10%</Text>
-          <Switch value={isShippingChecked} onValueChange={setIsShippingChecked} />
-        </View>
+        <TouchableOpacity
+          style={[styles.voucherItem, { backgroundColor: theme.card }]}
+          onPress={toggleShipping}
+        >
+          <Icon name="car-outline" size={28} color={theme.text} />
+          <Text style={[styles.voucherText, { color: theme.text }]}>Giảm giá 10%</Text>
+          <View
+            style={[
+              styles.checkbox,
+              { borderColor: theme.text, backgroundColor: theme.card },
+            ]}
+          >
+            {selectedShipping && <View style={[styles.checkboxTick, { backgroundColor: theme.text }]} />}
+          </View>
+        </TouchableOpacity>
 
-        {/* Voucher khác */}
+        {/* Product Vouchers */}
         <Text style={[styles.sectionTitle, { color: theme.text }]}>Voucher</Text>
-
-        <View style={[styles.voucherItem, { backgroundColor: theme.primary }]}>
-          <Icon name="cart-outline" size={30} color="#fff" />
-          <Text style={styles.voucherText}>Giảm giá 10% với đơn hàng 0K</Text>
-          <Switch value={voucher1Checked} onValueChange={setVoucher1Checked} />
-        </View>
-
-        <View style={[styles.voucherItem, { backgroundColor: theme.primary }]}>
-          <Icon name="cart-outline" size={30} color="#fff" />
-          <Text style={styles.voucherText}>Giảm giá 20% với đơn hàng trên 200K</Text>
-          <Switch value={voucher2Checked} onValueChange={setVoucher2Checked} />
-        </View>
-
-        <View style={[styles.voucherItem, { backgroundColor: theme.primary }]}>
-          <Icon name="cart-outline" size={30} color="#fff" />
-          <Text style={styles.voucherText}>Giảm giá 25% với đơn hàng trên 500K</Text>
-          <Switch value={voucher3Checked} onValueChange={setVoucher3Checked} />
-        </View>
+        {[
+          { id: 1, text: 'Giảm giá 10% với đơn hàng 0K' },
+          { id: 2, text: 'Giảm giá 20% với đơn hàng trên 200K' },
+          { id: 3, text: 'Giảm giá 25% với đơn hàng trên 500K' },
+        ].map((voucher) => (
+          <TouchableOpacity
+            key={voucher.id}
+            style={[styles.voucherItem, { backgroundColor: theme.card }]}
+            onPress={() => selectVoucher(voucher.id)}
+          >
+            <Icon name="cart-outline" size={28} color={theme.text} />
+            <Text style={[styles.voucherText, { color: theme.text }]}>{voucher.text}</Text>
+            <View
+              style={[
+                styles.checkbox,
+                { borderColor: theme.text, backgroundColor: theme.card },
+              ]}
+            >
+              {selectedVoucher === voucher.id && (
+                <View style={[styles.checkboxTick, { backgroundColor: theme.text }]} />
+              )}
+            </View>
+          </TouchableOpacity>
+        ))}
       </ScrollView>
 
       {/* Apply Button */}
-      <TouchableOpacity style={[styles.button, { backgroundColor: isDarkMode ? '#990000' : '#FF4500' }]}>
-        <Text style={styles.buttonText}>Áp dụng voucher</Text>
+      <TouchableOpacity style={[styles.applyButton, { backgroundColor: isDarkMode ? '#990000' : '#FF4500' }]}>
+        <Text style={{ color: '#fff', fontWeight: 'bold' }}>Áp dụng voucher</Text>
       </TouchableOpacity>
     </View>
+    </SafeAreaView>
   );
 };
 
@@ -89,24 +112,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    marginBottom: 10,
+    paddingBottom: 10,
   },
   headerText: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginLeft: 8,
+    marginLeft: 10,
   },
   searchContainer: {
-    flexDirection: 'row',
-    borderRadius: 10,
     marginHorizontal: 16,
+    borderRadius: 10,
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 8,
+    paddingHorizontal: 10,
+    height: 40,
     marginBottom: 10,
   },
   searchInput: {
     flex: 1,
-    height: 40,
+    marginLeft: 8,
+    fontSize: 14,
   },
   content: {
     paddingHorizontal: 16,
@@ -117,30 +142,43 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   voucherItem: {
-    borderRadius: 10,
     flexDirection: 'row',
     alignItems: 'center',
+    borderRadius: 12,
     padding: 12,
     marginBottom: 10,
-    justifyContent: 'space-between',
-    borderWidth: 2, 
-  borderColor: '#fff',
   },
   voucherText: {
     flex: 1,
     marginHorizontal: 10,
-    color: '#fff',
     fontWeight: 'bold',
   },
-  button: {
-    padding: 16,
+  checkbox: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
     alignItems: 'center',
-    margin: 16,
-    borderRadius: 12,
+    justifyContent: 'center',
   },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+  checkboxTick: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+  },
+  applyButton: {
+    margin: 16,
+    paddingVertical: 14,
+    borderRadius: 14,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  applyButtonText: {
     fontSize: 16,
+    fontWeight: 'bold',
   },
 });

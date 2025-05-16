@@ -2,7 +2,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = 'http://192.168.1.21:5000/api'; // ví dụ: http://192.168.1.5:3000/api/auth
+const API_URL = 'http://192.168.1.32:5000/api'; // ví dụ: http://192.168.1.5:3000/api/auth
 
 const instance = axios.create({
   baseURL: API_URL,
@@ -108,10 +108,10 @@ export const authApi = {
     }
   },
   //Thêm địa chỉ 
-  addAddress: async (addressData) => {
+  addAddress: async (data) => {
     try {
-      const response = await instance.post('/diachi', addressData); // Gọi API thêm địa chỉ
-      return response.data; // Trả về kết quả thêm địa chỉ
+      const response = await instance.post('/nguoidung/diachi', data);
+  return response.data; // Trả về kết quả thêm địa chỉ
     } catch (error) {
       console.error('Lỗi khi thêm địa chỉ:', error);
       throw error;
@@ -119,10 +119,10 @@ export const authApi = {
   },
 
   // Cập nhật địa chỉ
-  updateAddress: async (addressId, updatedData) => {
+  updateAddress: async (id, data) => {
     try {
-      const response = await instance.put(`/diachi/${addressId}`, updatedData); // Gọi API cập nhật địa chỉ
-      return response.data; // Trả về kết quả cập nhật địa chỉ
+      const response = await instance.put(`/nguoidung/diachi/${id}`, data);
+  return response.data; // Trả về kết quả cập nhật địa chỉ
     } catch (error) {
       console.error('Lỗi khi cập nhật địa chỉ:', error);
       throw error;
@@ -130,10 +130,10 @@ export const authApi = {
   },
 
   // Xóa địa chỉ
-  deleteAddress: async (addressId) => {
+  deleteAddress: async (id) => {
     try {
-      const response = await instance.delete(`/diachi/${addressId}`); // Gọi API xóa địa chỉ
-      return response.data; // Trả về kết quả xóa địa chỉ
+       const response = await instance.delete(`/nguoidung/diachi/${id}`);
+  return response.data; // Trả về kết quả xóa địa chỉ
     } catch (error) {
       console.error('Lỗi khi xóa địa chỉ:', error);
       throw error;
@@ -141,9 +141,9 @@ export const authApi = {
   },
 
   // Đặt địa chỉ mặc định
-  setDefaultAddress: async (addressId) => {
+  setDefaultAddress: async (id) => {
     try {
-      const response = await instance.put(`/diachi/${addressId}/macdinh`); // Gọi API đặt địa chỉ mặc định
+  const response = await instance.put(`/nguoidung/diachi/${id}/macdinh`);
       return response.data; // Trả về kết quả đặt địa chỉ mặc định
     } catch (error) {
       console.error('Lỗi khi đặt địa chỉ mặc định:', error);
@@ -187,5 +187,16 @@ getCart: async () => {
     throw error;
   }
 },
+
+// thanh toán 
+thanhToan: async (data) => {
+  try {
+    const response = await instance.post('/thanhtoan', data);
+    return response.data;
+  } catch (error) {
+    console.error('Lỗi khi thanh toán:', error.response?.data || error.message);
+    throw error;
+  }
+}
 
 };

@@ -128,7 +128,6 @@ export default function HomeScreen() {
               <Image source={{ uri: item.hinhAnh }} style={styles.largeCardImage} />
               <Text style={[styles.cardTitle, { color: theme.text }]}>{item.tenSanPham}</Text>
               <Text style={[styles.cardPrice, { color: theme.text }]}>{item.gia?.toLocaleString()}₫</Text>
-              <Text style={styles.cardBuy}>Mua</Text>
             </TouchableOpacity>
           ))}
         </View>
