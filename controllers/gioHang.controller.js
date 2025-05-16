@@ -107,7 +107,7 @@ const themVaoGioHang = async (req, res) => {
 const xoaKhoiGioHang = async (req, res) => {
   try {
     const { sanPhamId } = req.params;
-    const { kichThuoc } = req.body; // Optional: nếu muốn xóa theo kích thước
+    // const { kichThuoc } = req.body; // Optional: nếu muốn xóa theo kích thước
 
     // Tìm giỏ hàng của người dùng
     let gioHang = await GioHang.findOne({ nguoiDung: req.nguoiDung._id });
@@ -124,10 +124,10 @@ const xoaKhoiGioHang = async (req, res) => {
     
     gioHang.mucGioHang = gioHang.mucGioHang.filter(item => {
       // Nếu có truyền kích thước thì xóa đúng sản phẩm + kích thước
-      if (kichThuoc && kichThuoc.ten) {
-        return !(item.sanPham.toString() === sanPhamId && 
-               item.kichThuoc?.ten === kichThuoc.ten);
-      }
+      // if (kichThuoc && kichThuoc.ten) {
+      //   return !(item.sanPham.toString() === sanPhamId && 
+      //          item.kichThuoc?.ten === kichThuoc.ten);
+      // }
       // Ngược lại xóa tất cả các mục có sanPhamId này
       return item.sanPham.toString() !== sanPhamId;
     });
