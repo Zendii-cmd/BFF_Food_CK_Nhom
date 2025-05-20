@@ -61,6 +61,10 @@ import AddAddressScreen from './component/AddAddressScreen';
 import EditAddressScreen from './component/EditAddressScreen';
 import PaymentScreen from './component/PaymentScreen';
 import VoucherScreen from './component/VoucherScreen';
+import AddressListScreen from './component/AddressScreen';
+import PaymentMethodScreen from './component/PaymentMethodScreen';
+import AddPaymentMethod from './component/AddPaymentMethodScreen';
+
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 const App = () => {
@@ -93,10 +97,13 @@ const App = () => {
                 <Stack.Screen name="OrderSuccess" component={OrderSuccessScreen} options={{ headerShown: false }}/>
                 <Stack.Screen name="ForgetPassword" component={ForgotPasswordScreen} />
                 <Stack.Screen name="ChiTietSanPham" component={SanPhamDetailScreen}options={{ headerShown: false }} />
+                <Stack.Screen name="AddressList" component={AddressListScreen}options={{ headerShown: false }} />
                 <Stack.Screen name="AddAddress" component={AddAddressScreen}options={{ headerShown: false }} />
                 <Stack.Screen name="EditAddress" component={EditAddressScreen}options={{ headerShown: false }} />                
                 <Stack.Screen name="Payment" component={PaymentScreen}options={{ headerShown: false }} />
                 <Stack.Screen name="Voucher" component={VoucherScreen}options={{ headerShown: false }} />
+                <Stack.Screen name="PaymentMethod" component={PaymentMethodScreen}options={{ headerShown: false }} />
+                <Stack.Screen name="AddPaymentMethod" component={AddPaymentMethod}options={{ headerShown: false }} />
 
             
             </Stack.Navigator>

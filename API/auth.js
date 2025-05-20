@@ -2,7 +2,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = 'http://192.168.1.32:5000/api'; // ví dụ: http://192.168.1.5:3000/api/auth
+const API_URL = 'http://192.168.1.66:5000/api'; // ví dụ: http://192.168.1.5:3000/api/auth
 
 const instance = axios.create({
   baseURL: API_URL,
@@ -107,6 +107,17 @@ export const authApi = {
       throw error;
     }
   },
+  // Lấy danh sách địa chỉ của người dùng
+getAddressList: async () => {
+  try {
+    const response = await instance.get('/nguoidung/diachi');
+    return response.data.data; // danh sách địa chỉ
+  } catch (error) {
+    console.error('Lỗi khi lấy danh sách địa chỉ:', error);
+    throw error;
+  }
+},
+
   //Thêm địa chỉ 
   addAddress: async (data) => {
     try {
@@ -151,7 +162,7 @@ export const authApi = {
     }
   },
   // Thêm sản phẩm vào giỏ hàng
-addToCart: async (sanPhamId, soLuong = 1, kichThuoc = null, ghiChu = '') => {
+addToCart: async (sanPhamId, soLuong = 1, kichThuoc , ghiChu = '') => {
   try {
     const response = await instance.post('/giohang', {
       sanPhamId,
@@ -167,7 +178,7 @@ addToCart: async (sanPhamId, soLuong = 1, kichThuoc = null, ghiChu = '') => {
 },
 
 // Xoá sản phẩm khỏi giỏ hàng
-removeFromCart: async (sanPhamId= null) => {
+removeFromCart: async (sanPhamId) => {
   try {
     const response = await instance.delete(`/giohang/${sanPhamId}`);
     return response.data;
@@ -197,6 +208,35 @@ thanhToan: async (data) => {
     console.error('Lỗi khi thanh toán:', error.response?.data || error.message);
     throw error;
   }
-}
+},
+// Thêm phương thức thanh toán
+  addPaymentMethod: async (data) => {
+    const response = await instance.post('/thanhtoan/themphuongthucthanhtoan', data);
+    return response.data;
+  },
 
+  // Lấy danh sách phương thức thanh toán
+  getPaymentMethods: async () => {
+    const response = await instance.get('/thanhtoan');
+    return response.data;
+  },
+
+  // Sửa phương thức thanh toán
+  updatePaymentMethod: async (phuongThucId, data) => {
+    const response = await instance.put(`/phuongthucthanhtoan/${phuongThucId}`, data);
+    return response.data;
+  },
+
+  // Xoá phương thức thanh toán
+  deletePaymentMethod: async (phuongThucId) => {
+    const response = await instance.delete(`/phuongthucthanhtoan/${phuongThucId}`);
+    return response.data;
+  },
+
+  // Đặt phương thức làm mặc định
+  setDefaultPaymentMethod: async (phuongThucId) => {
+    const response = await instance.patch(`/phuongthucthanhtoan/${phuongThucId}/macdinh`);
+    return response.data;
+  },
 };
+

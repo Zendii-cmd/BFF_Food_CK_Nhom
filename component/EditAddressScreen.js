@@ -22,9 +22,9 @@ const EditAddressScreen = ({ route }) => {
   const handleSave = async () => {
     try {
       const data = {
-        hoTen: name,
+        tenNguoiNhan: name,
         soDienThoai: phone,
-        diaChi: street,
+        diaChiChiTietChiTiet: street,
         thanhPho: province,
       };
 

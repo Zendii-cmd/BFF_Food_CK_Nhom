@@ -42,18 +42,24 @@ const CartScreen = ({ navigation }) => {
   }, [navigation]);
 
   const handleRemoveItem = async (item) => {
-    try {
-      await authApi.removeFromCart(item._id, item.kichThuoc || null);
-      const updatedCart = cart.filter(cartItem => cartItem._id !== item._id);
-      setCart(updatedCart);
-      const newTongTien = updatedCart.reduce(
-        (sum, cartItem) => sum + cartItem.sanPham.gia * cartItem._doc.soLuong, 0
-      );
-      setTongTien(newTongTien);
-    } catch (error) {
-      console.error('Lỗi khi xoá sản phẩm:', error);
-    }
-  };
+  try {
+    // Gọi API xóa theo id sản phẩm (item.sanPham._id hoặc item.sanPham)
+    await authApi.removeFromCart(item.sanPham._id); // hoặc item.sanPham nếu đúng kiểu string
+
+    // Cập nhật lại cart: loại bỏ mục có sanPham trùng với item.sanPham._id
+    const updatedCart = cart.filter(cartItem => cartItem.sanPham._id !== item.sanPham._id);
+    setCart(updatedCart);
+
+    // Tính lại tổng tiền
+    const newTongTien = updatedCart.reduce(
+      (sum, cartItem) => sum + cartItem.sanPham.gia * cartItem.soLuong, 0
+    );
+    setTongTien(newTongTien);
+  } catch (error) {
+    console.error('Lỗi khi xoá sản phẩm:', error);
+  }
+};
+
 
   const renderItem = ({ item }) => (
     <View style={[styles.itemContainer, { backgroundColor: theme.card }]}>

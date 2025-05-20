@@ -36,9 +36,9 @@ const AddAddressScreen = () => {
 
     try {
       const data = {
-        hoTen: name,
+        tenNguoiNhan: name,
         soDienThoai: phone,
-        diaChi: street,
+        diaChiChiTiet: street,
         thanhPho: province,
       };
 

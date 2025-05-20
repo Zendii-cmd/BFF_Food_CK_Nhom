@@ -53,7 +53,7 @@ const ProfileScreen = () => {
     }
   };
   const handleNavigateToAddAddress = () => {
-    navigation.navigate('AddAddress');
+    navigation.navigate('AddressList');
   };
   if (!user) {
     return (

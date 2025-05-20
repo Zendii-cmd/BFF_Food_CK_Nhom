@@ -22,12 +22,14 @@ const SanPhamDetailScreen = () => {
   const [sanPham, setSanPham] = useState(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
+  const [selectedSize, setSelectedSize] = useState(null);
 
   useEffect(() => {
     const fetchSanPham = async () => {
       try {
         const data = await authApi.getSanPhamById(id);
         setSanPham(data);
+        setSelectedSize(data.kichThuoc?.[0])
       } catch (error) {
         console.error('Lỗi khi lấy chi tiết sản phẩm:', error);
       } finally {
@@ -44,14 +46,24 @@ const SanPhamDetailScreen = () => {
   };
 
   const handleAddToCart = async () => {
+    if (!selectedSize) {
+      Alert.alert('⚠️ Chưa chọn kích thước');
+      return;
+    }
+
     try {
-      await authApi.addToCart(sanPham._id, quantity); // gọi API từ auth.js
+            console.log('selectedSize khi thêm vào giỏ:', selectedSize);
+
+      await authApi.addToCart(sanPham._id, quantity, selectedSize);
+
       Alert.alert('✅ Thành công', 'Sản phẩm đã được thêm vào giỏ hàng!');
-      navigation.navigate('Home'); // chuyển về trang Home
+      navigation.navigate('Home');
     } catch (error) {
+      console.log('Lỗi thêm giỏ hàng:', error);
       Alert.alert('❌ Lỗi', 'Không thể thêm vào giỏ hàng');
     }
   };
+
 
 
   if (loading) {
@@ -70,10 +82,17 @@ const SanPhamDetailScreen = () => {
     );
   }
 
-  const tongTien = (sanPham.gia * quantity).toLocaleString('vi-VN', {
-    style: 'currency',
-    currency: 'VND',
-  });
+  // Tính tongTien an toàn hơn
+const tongTien = sanPham
+  ? (sanPham.gia + (selectedSize?.giaThem || 0)) * quantity
+  : 0;
+
+const tongTienFormatted = tongTien.toLocaleString('vi-VN', {
+  style: 'currency',
+  currency: 'VND',
+});
+
+
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#FFD232' }}>
@@ -106,10 +125,32 @@ const SanPhamDetailScreen = () => {
           <Text style={styles.restaurant}>BFF Restaurant</Text>
 
           <View style={styles.infoRow}>
-            <Text style={styles.infoText}>Size: Medium</Text>
             <Text style={styles.infoText}>Calories: 150kcal</Text>
             <Text style={styles.infoText}>Cooking: 10-12 Min</Text>
           </View>
+          <Text style={styles.ingredientsTitle}>Chọn kích thước</Text>
+          <View style={styles.sizeContainer}>
+            {sanPham.kichThuoc?.map((item) => (
+              <TouchableOpacity
+                key={item._id}
+                style={[
+                  styles.sizeButton,
+                  selectedSize?._id === item._id && styles.sizeButtonSelected,
+                ]}
+                onPress={() => setSelectedSize(item)}
+              >
+                <Text
+                  style={[
+                    styles.sizeButtonText,
+                    selectedSize?._id === item._id && styles.sizeButtonTextSelected,
+                  ]}
+                >
+                  {item.tenKichThuoc}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
 
           <Text style={styles.description}>
             {sanPham.moTa || 'Mô tả đang được cập nhật...'}
@@ -125,7 +166,8 @@ const SanPhamDetailScreen = () => {
           </View>
 
           <View style={styles.footer}>
-            <Text style={styles.price}>{tongTien}</Text>
+            <Text style={styles.price}>{tongTienFormatted}</Text>
+
             <TouchableOpacity style={styles.addButton} onPress={handleAddToCart}>
               <Text style={styles.addButtonText}>Thêm</Text>
             </TouchableOpacity>
@@ -162,6 +204,30 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginLeft: 16,
   },
+  sizeContainer: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 16,
+  },
+  sizeButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+  },
+  sizeButtonSelected: {
+    backgroundColor: '#FFA500',
+    borderColor: '#FFA500',
+  },
+  sizeButtonText: {
+    color: '#000',
+  },
+  sizeButtonTextSelected: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+
   content: {
     paddingBottom: 40,
   },
