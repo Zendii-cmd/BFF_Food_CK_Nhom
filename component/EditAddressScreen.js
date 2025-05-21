@@ -75,12 +75,7 @@ const EditAddressScreen = ({ route }) => {
           <Text style={[styles.headerText, { color: theme.text }]}>Chỉnh sửa địa chỉ</Text>
         </View>
 
-        {/* Nút đổi theme */}
-        <TouchableOpacity onPress={toggleDarkMode} style={{ marginBottom: 16 }}>
-          <Text style={{ color: theme.text }}>
-            Chuyển sang {isDarkMode ? 'Light Mode' : 'Dark Mode'}
-          </Text>
-        </TouchableOpacity>
+        
 
         {/* Form */}
         <TextInput

@@ -11,6 +11,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../Contexts/ThemeProvider'; // import hook của bạn
 import { lightTheme, darkTheme } from '../Contexts/theme'; // import 2 theme có sẵn
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 
 const VoucherScreen = () => {
   const { isDarkMode, toggleDarkMode } = useTheme(); // lấy trạng thái dark mode từ context
@@ -18,7 +19,7 @@ const VoucherScreen = () => {
 
   const [selectedShipping, setSelectedShipping] = useState(false);
   const [selectedVoucher, setSelectedVoucher] = useState(null);
-
+  const navigation = useNavigation();
   const toggleShipping = () => setSelectedShipping(!selectedShipping);
   const selectVoucher = (id) => setSelectedVoucher(id === selectedVoucher ? null : id);
 
@@ -28,7 +29,7 @@ const VoucherScreen = () => {
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('Cart')}>
           <Icon name="arrow-back" size={24} color={theme.text} />
         </TouchableOpacity>
         <Text style={[styles.headerText, { color: theme.text }]}>Chọn voucher</Text>

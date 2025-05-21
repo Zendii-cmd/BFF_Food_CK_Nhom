@@ -19,30 +19,34 @@ const LoginScreen = ({ setUser }) => {
   const handleLogin = async () => {
     if (!email.trim()) return Alert.alert('Lỗi', 'Vui lòng nhập email');
     if (!password.trim()) return Alert.alert('Lỗi', 'Vui lòng nhập mật khẩu');
-  
+
     setLoading(true);
-  
+
     try {
       // 1. Gọi login và nhận luôn object data
       const result = await authApi.login(email, password);
       const { token, data } = result;
-  
+
       if (!data || !token) {
         throw new Error('Dữ liệu phản hồi không hợp lệ');
       }
-  
+
       // 2. Lưu token với key userToken cho giống interceptor
       await AsyncStorage.multiSet([
         ['userToken', token],
         ['user', JSON.stringify(data)],
+        ['vaitro', data.vaiTro],
       ]);
-  
+
       // Gọi callback setUser nếu cần
       setUser && setUser(data);
-  
+
       // Điều hướng về Home
-      navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
-  
+      if (data.vaiTro === 'admin') {
+        navigation.reset({ index: 0, routes: [{ name: 'BottomTabAdmin' }] }); // Giả sử bạn có màn AdminProduct
+      } else {
+        navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
+      }
     } catch (error) {
       let msg = 'Đăng nhập không thành công';
       if (error.response?.status === 400) {

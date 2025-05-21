@@ -2,11 +2,11 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = 'http://192.168.1.66:5000/api'; // ví dụ: http://192.168.1.5:3000/api/auth
+const API_URL = 'https://bff-food-ck-nhom.onrender.com/api'; // ví dụ: http://192.168.1.5:3000/api/auth
 
 const instance = axios.create({
   baseURL: API_URL,
-  timeout: 1000, // timeout 10 giây để tránh treo lâu nếu server không phản hồi
+  timeout: 1000000000, // timeout 10 giây để tránh treo lâu nếu server không phản hồi
   headers: {
     'Content-Type': 'application/json'
   }
@@ -108,21 +108,21 @@ export const authApi = {
     }
   },
   // Lấy danh sách địa chỉ của người dùng
-getAddressList: async () => {
-  try {
-    const response = await instance.get('/nguoidung/diachi');
-    return response.data.data; // danh sách địa chỉ
-  } catch (error) {
-    console.error('Lỗi khi lấy danh sách địa chỉ:', error);
-    throw error;
-  }
-},
+  getAddressList: async () => {
+    try {
+      const response = await instance.get('/nguoidung/diachi');
+      return response.data.data; // danh sách địa chỉ
+    } catch (error) {
+      console.error('Lỗi khi lấy danh sách địa chỉ:', error);
+      throw error;
+    }
+  },
 
   //Thêm địa chỉ 
   addAddress: async (data) => {
     try {
       const response = await instance.post('/nguoidung/diachi', data);
-  return response.data; // Trả về kết quả thêm địa chỉ
+      return response.data; // Trả về kết quả thêm địa chỉ
     } catch (error) {
       console.error('Lỗi khi thêm địa chỉ:', error);
       throw error;
@@ -133,7 +133,7 @@ getAddressList: async () => {
   updateAddress: async (id, data) => {
     try {
       const response = await instance.put(`/nguoidung/diachi/${id}`, data);
-  return response.data; // Trả về kết quả cập nhật địa chỉ
+      return response.data; // Trả về kết quả cập nhật địa chỉ
     } catch (error) {
       console.error('Lỗi khi cập nhật địa chỉ:', error);
       throw error;
@@ -143,8 +143,8 @@ getAddressList: async () => {
   // Xóa địa chỉ
   deleteAddress: async (id) => {
     try {
-       const response = await instance.delete(`/nguoidung/diachi/${id}`);
-  return response.data; // Trả về kết quả xóa địa chỉ
+      const response = await instance.delete(`/nguoidung/diachi/${id}`);
+      return response.data; // Trả về kết quả xóa địa chỉ
     } catch (error) {
       console.error('Lỗi khi xóa địa chỉ:', error);
       throw error;
@@ -154,7 +154,7 @@ getAddressList: async () => {
   // Đặt địa chỉ mặc định
   setDefaultAddress: async (id) => {
     try {
-  const response = await instance.put(`/nguoidung/diachi/${id}/macdinh`);
+      const response = await instance.put(`/nguoidung/diachi/${id}/macdinh`);
       return response.data; // Trả về kết quả đặt địa chỉ mặc định
     } catch (error) {
       console.error('Lỗi khi đặt địa chỉ mặc định:', error);
@@ -162,54 +162,54 @@ getAddressList: async () => {
     }
   },
   // Thêm sản phẩm vào giỏ hàng
-addToCart: async (sanPhamId, soLuong = 1, kichThuoc , ghiChu = '') => {
-  try {
-    const response = await instance.post('/giohang', {
-      sanPhamId,
-      soLuong,
-      kichThuoc,
-      ghiChu,
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Lỗi khi thêm vào giỏ hàng:', error);
-    throw error;
-  }
-},
+  addToCart: async (sanPhamId, soLuong = 1, kichThuoc, ghiChu = '') => {
+    try {
+      const response = await instance.post('/giohang', {
+        sanPhamId,
+        soLuong,
+        kichThuoc,
+        ghiChu,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Lỗi khi thêm vào giỏ hàng:', error);
+      throw error;
+    }
+  },
 
-// Xoá sản phẩm khỏi giỏ hàng
-removeFromCart: async (sanPhamId) => {
-  try {
-    const response = await instance.delete(`/giohang/${sanPhamId}`);
-    return response.data;
-  } catch (error) {
-    console.error('Lỗi khi xoá khỏi giỏ hàng:', error);
-    throw error;
-  }
-},
+  // Xoá sản phẩm khỏi giỏ hàng
+  removeFromCart: async (sanPhamId) => {
+    try {
+      const response = await instance.delete(`/giohang/${sanPhamId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Lỗi khi xoá khỏi giỏ hàng:', error);
+      throw error;
+    }
+  },
 
-// Lấy danh sách giỏ hàng
-getCart: async () => {
-  try {
-    const response = await instance.get('/giohang');
-    return response.data.data;
-  } catch (error) {
-    console.error('Lỗi khi lấy giỏ hàng:', error);
-    throw error;
-  }
-},
+  // Lấy danh sách giỏ hàng
+  getCart: async () => {
+    try {
+      const response = await instance.get('/giohang');
+      return response.data.data;
+    } catch (error) {
+      console.error('Lỗi khi lấy giỏ hàng:', error);
+      throw error;
+    }
+  },
 
-// thanh toán 
-thanhToan: async (data) => {
-  try {
-    const response = await instance.post('/thanhtoan', data);
-    return response.data;
-  } catch (error) {
-    console.error('Lỗi khi thanh toán:', error.response?.data || error.message);
-    throw error;
-  }
-},
-// Thêm phương thức thanh toán
+  // thanh toán 
+  thanhToan: async (data) => {
+    try {
+      const response = await instance.post('/thanhtoan', data);
+      return response.data;
+    } catch (error) {
+      console.error('Lỗi khi thanh toán:', error.response?.data || error.message);
+      throw error;
+    }
+  },
+  // Thêm phương thức thanh toán
   addPaymentMethod: async (data) => {
     const response = await instance.post('/thanhtoan/themphuongthucthanhtoan', data);
     return response.data;
@@ -217,25 +217,41 @@ thanhToan: async (data) => {
 
   // Lấy danh sách phương thức thanh toán
   getPaymentMethods: async () => {
-    const response = await instance.get('/thanhtoan');
+    const token = await AsyncStorage.getItem('token');
+    const response = await instance.get('/thanhtoan', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
     return response.data;
   },
 
+
   // Sửa phương thức thanh toán
   updatePaymentMethod: async (phuongThucId, data) => {
-    const response = await instance.put(`/phuongthucthanhtoan/${phuongThucId}`, data);
+    const token = await AsyncStorage.getItem('token');
+    const response = await instance.put(`/thanhtoan/${phuongThucId}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   },
 
   // Xoá phương thức thanh toán
   deletePaymentMethod: async (phuongThucId) => {
-    const response = await instance.delete(`/phuongthucthanhtoan/${phuongThucId}`);
+    const token = await AsyncStorage.getItem('token');
+    const response = await instance.delete(`/thanhtoan/${phuongThucId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   },
 
   // Đặt phương thức làm mặc định
   setDefaultPaymentMethod: async (phuongThucId) => {
-    const response = await instance.patch(`/phuongthucthanhtoan/${phuongThucId}/macdinh`);
+    const response = await instance.patch(`/thanhtoan/phuongthucthanhtoan/${phuongThucId}/macdinh`);
     return response.data;
   },
 };

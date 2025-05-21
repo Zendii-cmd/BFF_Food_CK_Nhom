@@ -15,7 +15,7 @@ import { useTheme } from '../Contexts/ThemeProvider';
 import { lightTheme, darkTheme } from '../Contexts/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { authApi } from '../API/auth';
-
+import { useFocusEffect } from '@react-navigation/native';
 const PaymentScreen = () => {
   const route = useRoute();
   const navigation = useNavigation();
@@ -55,9 +55,12 @@ const PaymentScreen = () => {
 
   const fetchDefaultPaymentMethod = async () => {
     try {
-      const data = await authApi.getPaymentMethods();
+      const response = await authApi.getPaymentMethods();
+      console.log('Payment methods:', response);
+      const data = response.data; // lấy mảng bên trong
       const defaultMethod = data.find(pm => pm.macDinh) || null;
       setSelectedPayment(defaultMethod);
+      console.log('Default payment method:', defaultMethod);
     } catch (error) {
       Alert.alert('Lỗi', 'Không thể tải phương thức thanh toán');
     }
@@ -131,23 +134,33 @@ const PaymentScreen = () => {
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: theme.text }]}>Phương thức thanh toán</Text>
           <TouchableOpacity
-            onPress={() =>
-              navigation.navigate('PaymentMethod', {
-                selectMode: true,
-                onSelect: (method) => {
-                  setSelectedPayment(method);
-                },
-              })
-            }
-          >
-            <View style={[styles.paymentOption, { backgroundColor: theme.card }]}>
-              <Text style={{ color: theme.text }}>
-                {selectedPayment
-                  ? `🔘 ${selectedPayment.tenPhuongThuc}`
-                  : '⚪ Chọn phương thức thanh toán'}
-              </Text>
-            </View>
-          </TouchableOpacity>
+  onPress={() =>
+    navigation.navigate('PaymentMethod', {
+      selectMode: true,
+      onSelect: (method) => {
+        setSelectedPayment(method);
+        fetchDefaultPaymentMethod();
+      },
+    })
+  }
+>
+  <View style={[styles.paymentOption, { backgroundColor: theme.card }]}>
+    <Text style={{ color: theme.text }}>
+      {selectedPayment
+        ? `🔘 ${selectedPayment.loai}`
+        : '⚪ Chọn phương thức thanh toán'}
+    </Text>
+    {selectedPayment && (
+      <Text style={{ color: theme.placeholder }}>
+        {selectedPayment.loai === 'the' 
+          ? `Thẻ ngân hàng - ${selectedPayment.thongTinThe?.tenTrenThe || ''}`
+          : selectedPayment.loai}
+      </Text>
+    )}
+  </View>
+</TouchableOpacity>
+
+
         </View>
 
         {/* Tổng tiền */}

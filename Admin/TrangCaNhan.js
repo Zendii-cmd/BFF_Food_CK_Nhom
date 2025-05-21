@@ -55,9 +55,6 @@ const ProfileScreen = () => {
   const handleNavigateToAddAddress = () => {
     navigation.navigate('AddressList');
   };
-  const handleNavigateToAddPayment = () => {
-    navigation.navigate('PaymentMethod');
-  };
   if (!user) {
     return (
       <View style={styles.center}>
@@ -81,18 +78,7 @@ const ProfileScreen = () => {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity
-          style={[styles.button,
-          { backgroundColor: getThemeColor('#FFA500', '#333') }]}
-          onPress={handleNavigateToAddAddress}>
-          <Text style={[styles.buttonText, { color: getThemeColor('#000', '#fff') }]}>🏠 Danh sách địa chỉ</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={[styles.button, 
-          { backgroundColor: getThemeColor('#FFA500', '#333') }]}
-          onPress={handleNavigateToAddPayment}>
-          <Text style={[styles.buttonText, { color: getThemeColor('#000', '#fff') }]}>💳 Phương thức thanh toán</Text>
-        </TouchableOpacity>
+        
 
         <View style={[styles.switchRow, { backgroundColor: getThemeColor('#FFA500', '#333') }]}>
           <Text style={[styles.switchLabel, { color: getThemeColor('#000', '#fff') }]}>💡 Dark mode</Text>

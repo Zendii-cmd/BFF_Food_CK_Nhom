@@ -1,4 +1,3 @@
-// screens/AddressListScreen.js
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -12,19 +11,23 @@ import { authApi } from '../API/auth';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme } from '../Contexts/ThemeProvider';
+import { lightTheme, darkTheme } from '../Contexts/theme';
 
 const AddressListScreen = () => {
   const [addresses, setAddresses] = useState([]);
   const navigation = useNavigation();
 
-    useEffect(() => {
+  const { isDarkMode } = useTheme();
+  const theme = isDarkMode ? darkTheme : lightTheme;
+
+  useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       fetchAddresses();
     });
 
     return unsubscribe;
   }, [navigation]);
-
 
   const fetchAddresses = async () => {
     try {
@@ -36,31 +39,31 @@ const AddressListScreen = () => {
   };
 
   const renderItem = ({ item }) => (
-    <View style={styles.addressItem}>
+    <View style={[styles.addressItem, { backgroundColor: theme.card }]}>
       <View style={{ flex: 1 }}>
-        <Text style={styles.name}>
+        <Text style={[styles.name, { color: theme.text }]}>
           {item.tenNguoiNhan}  |  {item.soDienThoai}
         </Text>
-        <Text>{item.diaChiCuThe}</Text>
-        <Text style={{ color: '#666' }}>
+        <Text style={{ color: theme.text }}>{item.diaChiCuThe}</Text>
+        <Text style={{ color: theme.placeholder }}>
           {item.diaChiChiTiet}, {item.thanhPho}
         </Text>
       </View>
       <TouchableOpacity
         onPress={() => navigation.navigate('EditAddress', { address: item })}
       >
-        <Ionicons name="create-outline" size={20} color="#000" />
+        <Ionicons name="create-outline" size={20} color={theme.text} />
       </TouchableOpacity>
     </View>
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} edges={['top']}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color="#000" />
+          <Ionicons name="arrow-back" size={24} color={theme.text} />
         </TouchableOpacity>
-        <Text style={styles.title}>Danh sách địa chỉ</Text>
+        <Text style={[styles.title, { color: theme.text }]}>Danh sách địa chỉ</Text>
       </View>
 
       <FlatList
@@ -71,7 +74,7 @@ const AddressListScreen = () => {
       />
 
       <TouchableOpacity
-        style={styles.addButton}
+        style={[styles.addButton, { backgroundColor: isDarkMode ? '#FFA500' : '#FFA500' }]}
         onPress={() => navigation.navigate('AddAddress')}
       >
         <Text style={styles.addButtonText}>Thêm địa chỉ</Text>
@@ -85,7 +88,6 @@ export default AddressListScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFCC33',
     padding: 16,
   },
   header: {
@@ -99,7 +101,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   addressItem: {
-    backgroundColor: '#FFF6CC',
     padding: 12,
     borderRadius: 8,
     marginBottom: 12,
@@ -112,7 +113,6 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   addButton: {
-    backgroundColor: '#FFA500',
     padding: 14,
     borderRadius: 8,
     alignItems: 'center',

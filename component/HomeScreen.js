@@ -120,7 +120,7 @@ export default function HomeScreen() {
 
         {/* Large product cards */}
         <View style={styles.cardGrid}>
-          {Array.isArray(products) && products.slice(0, 3).map(item => (
+          {Array.isArray(products) && products.slice(0, 10).map(item => (
             <TouchableOpacity key={item._id} 
                 style={[styles.largeCard, 
                 { backgroundColor: theme.card }]}

@@ -26,6 +26,8 @@ const CartScreen = ({ navigation }) => {
     const fetchCart = async () => {
       try {
         const data = await authApi.getCart();
+        console.log('Cart data:', data.mucGioHang);
+
         setCart(data.mucGioHang);
         setTongTien(data.tongTien);
       } catch (error) {
@@ -42,51 +44,73 @@ const CartScreen = ({ navigation }) => {
   }, [navigation]);
 
   const handleRemoveItem = async (item) => {
-  try {
-    // Gọi API xóa theo id sản phẩm (item.sanPham._id hoặc item.sanPham)
-    await authApi.removeFromCart(item.sanPham._id); // hoặc item.sanPham nếu đúng kiểu string
+    try {
+      await authApi.removeFromCart(item.sanPham._id);
+      const updatedCart = cart.filter(cartItem => cartItem.sanPham._id !== item.sanPham._id);
+      setCart(updatedCart);
 
-    // Cập nhật lại cart: loại bỏ mục có sanPham trùng với item.sanPham._id
-    const updatedCart = cart.filter(cartItem => cartItem.sanPham._id !== item.sanPham._id);
-    setCart(updatedCart);
+      const newTongTien = updatedCart.reduce((sum, cartItem) => {
+        const kt = typeof cartItem.kichThuoc === 'string'
+          ? cartItem.sanPham.kichThuoc.find(kt => kt._id === cartItem.kichThuoc)
+          : cartItem.kichThuoc;
+        return sum + (cartItem.sanPham.gia + (kt?.giaThem || 0)) * cartItem.soLuong;
+      }, 0);
 
-    // Tính lại tổng tiền
-    const newTongTien = updatedCart.reduce(
-      (sum, cartItem) => sum + cartItem.sanPham.gia * cartItem.soLuong, 0
+      setTongTien(newTongTien);
+    } catch (error) {
+      console.error('Lỗi khi xoá sản phẩm:', error);
+    }
+  };
+
+  const renderItem = ({ item }) => {
+    let kichThuocSelected = null;
+
+    if (item?.sanPham?.kichThuoc) {
+      if (typeof item.kichThuoc === 'string') {
+        kichThuocSelected = item.sanPham.kichThuoc.find(kt => kt._id === item.kichThuoc);
+      } else if (typeof item.kichThuoc === 'object') {
+        kichThuocSelected = item.kichThuoc;
+      }
+    }
+
+    const gia = item.sanPham.gia + (kichThuocSelected?.giaThem || 0);
+
+    return (
+      <View style={[styles.itemContainer, { backgroundColor: theme.card }]}>
+        <Image source={{ uri: item.sanPham.hinhAnh }} style={styles.image} />
+        <View style={styles.info}>
+          <Text style={[styles.tenSanPham, { color: theme.text }]} numberOfLines={1}>
+            {item.sanPham.tenSanPham}
+          </Text>
+          <Text style={[styles.priceText, { color: theme.subtext }]}>
+            {gia.toLocaleString()}đ
+          </Text>
+          {kichThuocSelected && (
+            <Text style={[styles.sizeText, { color: theme.subtext }]}>
+              Size: {kichThuocSelected.tenKichThuoc}
+              {kichThuocSelected.giaThem > 0 && ` (+${kichThuocSelected.giaThem.toLocaleString()}đ)`}
+            </Text>
+          )}
+        </View>
+        <View style={styles.quantityContainer}>
+          <Text style={[styles.quantityText, { color: theme.text }]}>{item._doc.soLuong}</Text>
+          <TouchableOpacity onPress={() => handleRemoveItem(item)} style={styles.trashButton}>
+            <Ionicons name="trash" size={24} color="red" />
+          </TouchableOpacity>
+        </View>
+      </View>
     );
-    setTongTien(newTongTien);
-  } catch (error) {
-    console.error('Lỗi khi xoá sản phẩm:', error);
-  }
-};
-
-
-  const renderItem = ({ item }) => (
-    <View style={[styles.itemContainer, { backgroundColor: theme.card }]}>
-      <Image source={{ uri: item.sanPham.hinhAnh }} style={styles.image} />
-      <View style={styles.info}>
-        <Text style={[styles.tenSanPham, { color: theme.text }]} numberOfLines={1}>
-          {item.sanPham.tenSanPham}
-        </Text>
-        <Text style={[styles.priceText, { color: theme.subtext }]}>
-          {item.sanPham.gia.toLocaleString()}đ
-        </Text>
-      </View>
-      <View style={styles.quantityContainer}>
-        <Text style={[styles.quantityText, { color: theme.text }]}>{item._doc.soLuong}</Text>
-        <TouchableOpacity onPress={() => handleRemoveItem(item)} style={styles.trashButton}>
-          <Ionicons name="trash" size={24} color="red" />
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
+  };
 
   const handlePayment = () => {
-    const simplifiedCartItems = cart.map(item => ({
-      name: item.sanPham.tenSanPham,
-      price: item.sanPham.gia,
-      quantity: item._doc.soLuong,
-    }));
+    const simplifiedCartItems = cart.map(item => {
+      const kichThuoc = typeof item.kichThuoc === 'object' ? item.kichThuoc : item.sanPham.kichThuoc.find(kt => kt._id === item.kichThuoc);
+      return {
+        name: item.sanPham.tenSanPham,
+        price: item.sanPham.gia + (kichThuoc?.giaThem || 0),
+        quantity: item._doc.soLuong,
+      };
+    });
     navigation.navigate('Payment', { cartItems: simplifiedCartItems });
   };
 
@@ -117,7 +141,10 @@ const CartScreen = ({ navigation }) => {
         <Text style={[styles.totalText, { color: theme.text }]}>
           Tổng tiền: {tongTien.toLocaleString()}đ
         </Text>
-        <TouchableOpacity style={[styles.checkoutButton,{ backgroundColor: isDarkMode ? '#990000' : '#FF4500' }]} onPress={handlePayment}>
+        <TouchableOpacity
+          style={[styles.checkoutButton, { backgroundColor: isDarkMode ? '#990000' : '#FF4500' }]}
+          onPress={handlePayment}
+        >
           <Text style={styles.checkoutText}>Thanh toán</Text>
         </TouchableOpacity>
       </View>
@@ -131,6 +158,11 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     paddingTop: 10,
+  },
+  sizeText: {
+    fontSize: 12,
+    fontStyle: 'italic',
+    marginTop: 2,
   },
   header: {
     flexDirection: 'row',
