@@ -7,7 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { authApi } from '../API/auth';
 
-const backgroundImage = { uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMh_uabbPJGtNL43dyhJKFCF2iuSkuaAGoFw&s' };
+const backgroundImage = { uri: 'https://images.pexels.com/photos/1109197/pexels-photo-1109197.jpeg?auto=compress&cs=tinysrgb&w=600' };
 
 const LoginScreen = ({ setUser }) => {
   const [email, setEmail] = useState('');
@@ -109,9 +109,7 @@ const LoginScreen = ({ setUser }) => {
             )}
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => navigation.navigate('ForgetPassword')}>
-            <Text style={styles.forgotPassword}>Quên mật khẩu?</Text>
-          </TouchableOpacity>
+          
 
           <TouchableOpacity style={styles.registerButton} onPress={() => navigation.navigate('Register')}>
             <Text style={styles.registerButtonText}>Tạo tài khoản mới</Text>
@@ -134,7 +132,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 36, fontWeight: 'bold', color: '#fff', marginBottom: 40 },
   form: {
     width: '100%',
-    backgroundColor: 'rgba(255,255,255,0.9)',
+    backgroundColor: 'rgba(255, 255, 255, 0.6)',
     borderRadius: 10,
     padding: 20,
   },

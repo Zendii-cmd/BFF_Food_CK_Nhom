@@ -1,9 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Alert, StyleSheet, SafeAreaView, Platform, StatusBar, Image } from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  Alert,
+  StyleSheet,
+  SafeAreaView,
+  Platform,
+  StatusBar,
+  Image,
+} from 'react-native';
 import axios from 'axios';
 import ModalSanPham from './ModalSanPham';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTheme } from '../Contexts/ThemeProvider'; // Cập nhật path đúng
+import { lightTheme, darkTheme } from '../Contexts/theme'; // Cập nhật path đúng
 
 const API_BASE = 'https://bff-food-ck-nhom.onrender.com/api';
 
@@ -11,6 +24,8 @@ export default function ProductScreen() {
   const [products, setProducts] = useState([]);
   const [editingProduct, setEditingProduct] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const { isDarkMode, toggleDarkMode } = useTheme();
+  const themeStyles = isDarkMode ? darkTheme : lightTheme;
 
   const fetchProducts = async () => {
     try {
@@ -51,25 +66,25 @@ export default function ProductScreen() {
   }, []);
 
   const renderItem = ({ item }) => (
-    <View style={styles.card}>
+    <View style={[styles.card, { backgroundColor: themeStyles.card }]}>
       {item.hinhAnh && (
-        <Image
-          source={{ uri: item.hinhAnh }}
-          style={styles.productImage}
-          resizeMode="cover"
-        />
+        <Image source={{ uri: item.hinhAnh }} style={styles.productImage} resizeMode="cover" />
       )}
       <View style={styles.cardBody}>
         <View style={styles.cardHeader}>
-          <Text style={styles.name} numberOfLines={1}>{item.tenSanPham}</Text>
-          <Text style={styles.price}>{item.gia.toLocaleString()} đ</Text>
+          <Text style={[styles.name, { color: themeStyles.text }]} numberOfLines={1}>
+            {item.tenSanPham}
+          </Text>
+          <Text style={[styles.price, { color: '#28a745' }]}>{item.gia.toLocaleString()} đ</Text>
         </View>
-        <Text style={styles.category}>Danh mục: {item.danhMuc?.tenDanhMuc || 'Không có'}</Text>
+        <Text style={[styles.category, { color: themeStyles.text }]}>
+          Danh mục: {item.danhMuc?.tenDanhMuc || 'Không có'}
+        </Text>
         {Array.isArray(item.kichThuoc) && item.kichThuoc.length > 0 && (
           <View style={styles.sizeContainer}>
-            <Text style={styles.sizeTitle}>Kích thước:</Text>
+            <Text style={[styles.sizeTitle, { color: themeStyles.text }]}>Kích thước:</Text>
             {item.kichThuoc.map((kt, index) => (
-              <Text key={index} style={styles.sizeItem}>
+              <Text key={index} style={[styles.sizeItem, { color: themeStyles.text }]}>
                 • {kt.tenKichThuoc} (+{kt.giaThem.toLocaleString()} đ)
               </Text>
             ))}
@@ -102,11 +117,15 @@ export default function ProductScreen() {
     <SafeAreaView
       style={[
         styles.safeArea,
-        { paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 },
+        {
+          backgroundColor: themeStyles.background,
+          paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+        },
       ]}
     >
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Danh sách sản phẩm</Text>
+      <View style={[styles.header, { backgroundColor: themeStyles.card }]}>
+        <Text style={[styles.headerTitle, { color: themeStyles.text }]}>Danh sách sản phẩm</Text>
+        
       </View>
 
       <View style={styles.container}>
@@ -144,10 +163,11 @@ export default function ProductScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f9f9f9',
   },
   header: {
-    backgroundColor: '#fff',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingVertical: 16,
     paddingHorizontal: 20,
     elevation: 3,
@@ -159,7 +179,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#333',
   },
   container: {
     flex: 1,
@@ -167,7 +186,6 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   card: {
-    backgroundColor: '#fff',
     borderRadius: 14,
     marginBottom: 16,
     shadowColor: '#000',
@@ -198,16 +216,13 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '700',
     flexShrink: 1,
-    color: '#222',
   },
   price: {
     fontSize: 16,
-    color: '#28a745',
     fontWeight: '700',
   },
   category: {
     fontSize: 13,
-    color: '#666',
     marginBottom: 6,
   },
   sizeContainer: {
@@ -215,12 +230,10 @@ const styles = StyleSheet.create({
   },
   sizeTitle: {
     fontWeight: '600',
-    color: '#444',
     marginBottom: 2,
   },
   sizeItem: {
     marginLeft: 10,
-    color: '#555',
     fontSize: 13,
   },
   actions: {

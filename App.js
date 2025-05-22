@@ -18,6 +18,7 @@ import PaymentMethodScreen from './component/PaymentMethodScreen';
 import AddPaymentMethod from './component/AddPaymentMethodScreen';
 import BottomTabAdmin from './Admin/BottomTabAdmin';
 import AddEditPaymentMethodScreen from './component/EditPaymentMethodScreen';
+import AddAddressScreen from './component/AddAddressScreen';
 
 const Stack = createStackNavigator();
 
@@ -45,16 +46,16 @@ const App = () => {
     checkLoginStatus();
   }, []);
 
-  // Khi user thay đổi, điều hướng đến trang tương ứng
-  useEffect(() => {
-    if (user && navigationRef.current) {
-      if (user.vaitro === 'admin') {
-        navigationRef.current.navigate('BottomTabAdmin');
-      } else {
-        navigationRef.current.navigate('Home');
-      }
-    }
-  }, [user]);
+  // // Khi user thay đổi, điều hướng đến trang tương ứng
+  // useEffect(() => {
+  //   if (user && navigationRef.current) {
+  //     if (user.vaiTro === 'admin') {
+  //       navigationRef.current.navigate('BottomTabAdmin');
+  //     } else {
+  //       navigationRef.current.navigate('Home');
+  //     }
+  //   }
+  // }, [user]);
 
   if (isLoading) return null;
 
@@ -62,10 +63,10 @@ const App = () => {
     <ThemeProvider>
       <NavigationContainer ref={navigationRef}>
         <Stack.Navigator initialRouteName="Login">
-          <Stack.Screen name="Login">
+          <Stack.Screen name="Login"options={{ headerShown: false }}>
             {(props) => <LoginScreen {...props} setUser={setUser} />}
           </Stack.Screen>
-          <Stack.Screen name="Register" component={RegisterScreen} />
+          <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }}/>
           <Stack.Screen name="ForgetPassword" component={ForgotPasswordScreen} />
           <Stack.Screen name="Home" options={{ headerShown: false }}>
             {(props) => <Bottomtab {...props} />}
@@ -73,6 +74,8 @@ const App = () => {
           <Stack.Screen name="BottomTabAdmin" component={BottomTabAdmin} options={{ headerShown: false }} />
           <Stack.Screen name="OrderSuccess" component={OrderSuccessScreen} options={{ headerShown: false }} />
           <Stack.Screen name="ChiTietSanPham" component={SanPhamDetailScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="AddAddress" component={AddAddressScreen}options={{ headerShown: false }} />
+
           <Stack.Screen name="AddressList" component={AddressListScreen} options={{ headerShown: false }} />
           <Stack.Screen name="EditAddress" component={EditAddressScreen} options={{ headerShown: false }} />
           <Stack.Screen name="Payment" component={PaymentScreen} options={{ headerShown: false }} />

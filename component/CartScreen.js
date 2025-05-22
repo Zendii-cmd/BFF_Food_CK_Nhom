@@ -82,7 +82,7 @@ const CartScreen = ({ navigation }) => {
           <Text style={[styles.tenSanPham, { color: theme.text }]} numberOfLines={1}>
             {item.sanPham.tenSanPham}
           </Text>
-          <Text style={[styles.priceText, { color: theme.subtext }]}>
+          <Text style={[styles.priceText, { color: theme.text }]}>
             {gia.toLocaleString()}đ
           </Text>
           {kichThuocSelected && (
@@ -111,6 +111,7 @@ const CartScreen = ({ navigation }) => {
         quantity: item._doc.soLuong,
       };
     });
+    
     navigation.navigate('Payment', { cartItems: simplifiedCartItems });
   };
 

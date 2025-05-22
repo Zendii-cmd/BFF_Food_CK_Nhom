@@ -1,67 +1,65 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, Alert, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import axios from 'axios';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { authApi } from '../API/auth'; // gọi từ file API dùng instance axios có token
 
 const ForgotPasswordScreen = () => {
-  const [email, setEmail] = useState('');
+  const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
 
   const handleResetPassword = async () => {
-    if (!email.trim() || !newPassword.trim()) {
-      return Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ Email và mật khẩu mới.');
+    if (!oldPassword.trim() || !newPassword.trim()) {
+      return Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ mật khẩu cũ và mật khẩu mới.');
     }
     if (newPassword !== confirmPassword) {
       return Alert.alert('Lỗi', 'Mật khẩu xác nhận không khớp.');
     }
-
+if (newPassword.length < 6) {
+    return Alert.alert('Lỗi', 'Mật khẩu mới phải có ít nhất 6 ký tự.');
+  }
     try {
       setLoading(true);
-
-      const response = await axios.post('http://10.0.135.171:5000/api/forget', {
-        username: email,
-        password: newPassword,
-      });
-
-      console.log(response.data);
-
+      await authApi.changePassword(oldPassword, newPassword);
       Alert.alert('Thành công', 'Đã thay đổi mật khẩu thành công.');
       navigation.navigate('Login');
     } catch (error) {
-      console.error(error?.response?.data || error.message);
-      Alert.alert('Lỗi', error?.response?.data || 'Không thể thay đổi mật khẩu.');
+      console.error(error);
+      Alert.alert('Lỗi', error.response?.data?.message || 'Không thể thay đổi mật khẩu.');
     } finally {
       setLoading(false);
     }
   };
 
-  const backgroundImage = { uri: 'https://images.unsplash.com/photo-1551218808-94e220e084d2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=60' };
+  const backgroundImage = { uri: 'https://images.unsplash.com/photo-1551218808-94e220e084d2?auto=format&fit=crop&w=800&q=60' };
 
   return (
     <ImageBackground source={backgroundImage} style={styles.background}>
       <View style={styles.overlay} />
       <View style={styles.container}>
         <Text style={styles.logo}>BFF FOOD</Text>
+        <Text style={styles.subtitle}>Đổi mật khẩu</Text>
 
-        <Text style={styles.subtitle}>Thay đổi mật khẩu mới</Text>
-
-        {/* Email */}
+        {/* Old Password */}
         <View style={styles.inputContainer}>
-          <Ionicons name="person-outline" size={20} color="#999" style={styles.icon} />
+          <Ionicons name="lock-closed-outline" size={20} color="#999" style={styles.icon} />
           <TextInput
-            placeholder="Tên người dùng"
-            value={email}
-            onChangeText={setEmail}
+            placeholder="Mật khẩu hiện tại"
+            value={oldPassword}
+            onChangeText={setOldPassword}
+            secureTextEntry={!showOldPassword}
             style={styles.input}
             placeholderTextColor="#999"
-            autoCapitalize="none"
           />
+          <TouchableOpacity onPress={() => setShowOldPassword(!showOldPassword)}>
+            <Ionicons name={showOldPassword ? 'eye-off-outline' : 'eye-outline'} size={20} color="#999" />
+          </TouchableOpacity>
         </View>
 
         {/* New Password */}
@@ -84,7 +82,7 @@ const ForgotPasswordScreen = () => {
         <View style={styles.inputContainer}>
           <Ionicons name="lock-closed-outline" size={20} color="#999" style={styles.icon} />
           <TextInput
-            placeholder="Nhập lại mật khẩu"
+            placeholder="Nhập lại mật khẩu mới"
             value={confirmPassword}
             onChangeText={setConfirmPassword}
             secureTextEntry={!showConfirmPassword}
@@ -96,7 +94,7 @@ const ForgotPasswordScreen = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Submit Button */}
+        {/* Submit */}
         <TouchableOpacity style={styles.button} onPress={handleResetPassword} disabled={loading}>
           {loading ? (
             <ActivityIndicator color="#fff" />

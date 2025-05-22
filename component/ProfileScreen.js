@@ -58,6 +58,10 @@ const ProfileScreen = () => {
   const handleNavigateToAddPayment = () => {
     navigation.navigate('PaymentMethod');
   };
+  const handleNavigateToChangePassword = () => {
+    navigation.navigate('ForgetPassword');
+  };
+
   if (!user) {
     return (
       <View style={styles.center}>
@@ -88,8 +92,8 @@ const ProfileScreen = () => {
           <Text style={[styles.buttonText, { color: getThemeColor('#000', '#fff') }]}>🏠 Danh sách địa chỉ</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.button, 
-          { backgroundColor: getThemeColor('#FFA500', '#333') }]}
+        <TouchableOpacity style={[styles.button,
+        { backgroundColor: getThemeColor('#FFA500', '#333') }]}
           onPress={handleNavigateToAddPayment}>
           <Text style={[styles.buttonText, { color: getThemeColor('#000', '#fff') }]}>💳 Phương thức thanh toán</Text>
         </TouchableOpacity>
@@ -98,6 +102,13 @@ const ProfileScreen = () => {
           <Text style={[styles.switchLabel, { color: getThemeColor('#000', '#fff') }]}>💡 Dark mode</Text>
           <Switch value={isDarkMode} onValueChange={toggleDarkMode} />
         </View>
+
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: getThemeColor('#FFA500', '#333') }]}
+          onPress={handleNavigateToChangePassword}
+        >
+          <Text style={[styles.buttonText, { color: getThemeColor('#000', '#fff') }]}>🔒 Đổi mật khẩu</Text>
+        </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.logoutButton, { backgroundColor: getThemeColor('#FF4500', '#990000') }]}

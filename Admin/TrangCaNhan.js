@@ -52,8 +52,9 @@ const ProfileScreen = () => {
       alert('Đăng xuất thất bại!');
     }
   };
-  const handleNavigateToAddAddress = () => {
-    navigation.navigate('AddressList');
+ 
+  const handleNavigateToChangePassword = () => {
+    navigation.navigate('ForgetPassword');
   };
   if (!user) {
     return (
@@ -78,13 +79,18 @@ const ProfileScreen = () => {
           </TouchableOpacity>
         </View>
 
-        
+
 
         <View style={[styles.switchRow, { backgroundColor: getThemeColor('#FFA500', '#333') }]}>
           <Text style={[styles.switchLabel, { color: getThemeColor('#000', '#fff') }]}>💡 Dark mode</Text>
           <Switch value={isDarkMode} onValueChange={toggleDarkMode} />
         </View>
-
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: getThemeColor('#FFA500', '#333') }]}
+          onPress={handleNavigateToChangePassword}
+        >
+          <Text style={[styles.buttonText, { color: getThemeColor('#000', '#fff') }]}>🔒 Đổi mật khẩu</Text>
+        </TouchableOpacity>
         <TouchableOpacity
           style={[styles.logoutButton, { backgroundColor: getThemeColor('#FF4500', '#990000') }]}
           onPress={handleLogout}

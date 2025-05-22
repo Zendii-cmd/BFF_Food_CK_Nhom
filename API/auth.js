@@ -84,6 +84,19 @@ export const authApi = {
       throw error;
     }
   },
+// Đổi mật khẩu
+changePassword: async (matKhauCu, matKhauMoi) => {
+  try {
+    const response = await instance.put('/nguoidung/doimatkhau', {
+      matKhauCu,
+      matKhauMoi
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Lỗi khi đổi mật khẩu:', error.response?.data || error.message);
+    throw error;
+  }
+},
 
 
 
@@ -202,7 +215,7 @@ export const authApi = {
   // thanh toán 
   thanhToan: async (data) => {
     try {
-      const response = await instance.post('/thanhtoan', data);
+      const response = await instance.post('/thanhtoan/thanhtoan', data);
       return response.data;
     } catch (error) {
       console.error('Lỗi khi thanh toán:', error.response?.data || error.message);

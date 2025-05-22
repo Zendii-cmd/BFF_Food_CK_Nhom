@@ -56,11 +56,9 @@ const PaymentScreen = () => {
   const fetchDefaultPaymentMethod = async () => {
     try {
       const response = await authApi.getPaymentMethods();
-      console.log('Payment methods:', response);
       const data = response.data; // lấy mảng bên trong
       const defaultMethod = data.find(pm => pm.macDinh) || null;
       setSelectedPayment(defaultMethod);
-      console.log('Default payment method:', defaultMethod);
     } catch (error) {
       Alert.alert('Lỗi', 'Không thể tải phương thức thanh toán');
     }
@@ -80,14 +78,14 @@ const PaymentScreen = () => {
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={[styles.sectionTitle, { color: theme.text }]}>Thông tin người nhận</Text>
             <TouchableOpacity onPress={() => navigation.navigate('AddressList', { selectMode: true })}>
-              <Text style={{ color: theme.primary }}>Thay đổi</Text>
+              <Text style={{ color: theme.text }}>Thay đổi</Text>
             </TouchableOpacity>
           </View>
           {address ? (
             <View style={[styles.addressBox, { backgroundColor: theme.card }]}>
               <Ionicons name="home" size={18} color={theme.text} />
               <Text style={[styles.addressText, { color: theme.text }]}>
-                {address.tenNguoiNhan} - {address.diaChiCuThe}, {address.diaChiChiTiet}, {address.thanhPho}
+                {address.tenNguoiNhan} {address.diaChiCuThe}, {address.diaChiChiTiet}, {address.thanhPho}
               </Text>
             </View>
           ) : (
@@ -101,11 +99,11 @@ const PaymentScreen = () => {
             <View>
               <Text style={[{ fontWeight: 'bold' }, { color: theme.text }]}>{item.name}</Text>
               <Text style={{ color: theme.placeholder }}>
-                {item.price} x {item.quantity}
+                {item.price.toLocaleString('vi-VN')} x {item.quantity}
               </Text>
             </View>
             <Text style={[{ fontWeight: 'bold' }, { color: theme.text }]}>
-              {item.price * item.quantity}
+              {(item.price * item.quantity).toLocaleString('vi-VN')} VND
             </Text>
           </View>
         ))}
@@ -134,43 +132,44 @@ const PaymentScreen = () => {
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: theme.text }]}>Phương thức thanh toán</Text>
           <TouchableOpacity
-  onPress={() =>
-    navigation.navigate('PaymentMethod', {
-      selectMode: true,
-      onSelect: (method) => {
-        setSelectedPayment(method);
-        fetchDefaultPaymentMethod();
-      },
-    })
-  }
->
-  <View style={[styles.paymentOption, { backgroundColor: theme.card }]}>
-    <Text style={{ color: theme.text }}>
-      {selectedPayment
-        ? `🔘 ${selectedPayment.loai}`
-        : '⚪ Chọn phương thức thanh toán'}
-    </Text>
-    {selectedPayment && (
-      <Text style={{ color: theme.placeholder }}>
-        {selectedPayment.loai === 'the' 
-          ? `Thẻ ngân hàng - ${selectedPayment.thongTinThe?.tenTrenThe || ''}`
-          : selectedPayment.loai}
-      </Text>
-    )}
-  </View>
-</TouchableOpacity>
+            onPress={() =>
+              navigation.navigate('PaymentMethod', {
+                selectMode: true,
+                onSelect: (method) => {
+                  setSelectedPayment(method);
+                  fetchDefaultPaymentMethod();
+                },
+              })
+            }
+          >
+            <View style={[styles.paymentOption, { backgroundColor: theme.card }]}>
+              <Text style={{ color: theme.text }}>
+                {selectedPayment
+                  ? `🔘 ${selectedPayment.loai}`
+                  : '⚪ Chọn phương thức thanh toán'}
+              </Text>
+              {selectedPayment && (
+                <Text style={{ color: theme.placeholder }}>
+                  {selectedPayment.loai === 'the'
+                    ? `Thẻ ngân hàng - ${selectedPayment.thongTinThe?.tenTrenThe || ''}`
+                    : selectedPayment.loai}
+                </Text>
+              )}
+            </View>
+          </TouchableOpacity>
 
 
         </View>
 
         {/* Tổng tiền */}
         <View style={[styles.totalBox, { backgroundColor: theme.card }]}>
-          <Text style={{ color: theme.text }}>Sản phẩm: {total} VND</Text>
-          <Text style={{ color: theme.text }}>Giao hàng: 15000 VND</Text>
+          <Text style={{ color: theme.text }}>Sản phẩm: {total.toLocaleString('vi-VN')} VND</Text>
+          <Text style={{ color: theme.text }}>Giao hàng: {15000..toLocaleString('vi-VN')} VND</Text>
           <Text style={{ color: theme.text }}>Giảm giá: 0 VND</Text>
           <Text style={[styles.total, { color: theme.text }]}>
-            Tổng cộng: {total + 15000} VND
+            Tổng cộng: {(total + 15000).toLocaleString('vi-VN')} VND
           </Text>
+
         </View>
 
         {/* Nút thanh toán */}
@@ -184,6 +183,8 @@ const PaymentScreen = () => {
 
             navigation.navigate('OrderSuccess', {
               total: total + 15000,
+              formattedTotal: (total + 15000).toLocaleString('vi-VN'),
+
               paymentMethodId: selectedPayment._id,
             });
           }}
