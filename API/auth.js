@@ -264,7 +264,7 @@ changePassword: async (matKhauCu, matKhauMoi) => {
 
   // Đặt phương thức làm mặc định
   setDefaultPaymentMethod: async (phuongThucId) => {
-    const response = await instance.patch(`/thanhtoan/phuongthucthanhtoan/${phuongThucId}/macdinh`);
+    const response = await instance.patch(`/thanhtoan/${phuongThucId}/macdinh`);
     return response.data;
   },
 };

@@ -7,13 +7,13 @@ import {
   TouchableOpacity,
   Switch,
   Alert,
-  SafeAreaView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { authApi } from '../API/auth';
 import { useTheme } from '../Contexts/ThemeProvider';
 import { lightTheme, darkTheme } from '../Contexts/theme';
+import { SafeAreaView } from 'react-native-safe-area-context'; // <- dùng thư viện này
 
 const AddAddressScreen = () => {
   const navigation = useNavigation();
@@ -61,7 +61,7 @@ const AddAddressScreen = () => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }} edges={['top']}>
       <View style={styles.container}>
         {/* Header */}
         <View style={[styles.header, { borderColor: theme.border }]}>
@@ -75,10 +75,7 @@ const AddAddressScreen = () => {
 
         {/* Form */}
         <TextInput
-          style={[
-            styles.input,
-            { backgroundColor: theme.input, color: theme.text },
-          ]}
+          style={[styles.input, { backgroundColor: theme.input, color: theme.text }]}
           placeholder="Họ tên"
           placeholderTextColor={theme.placeholder}
           value={name}
@@ -87,14 +84,7 @@ const AddAddressScreen = () => {
 
         <View style={styles.row}>
           <TextInput
-            style={[
-              styles.input,
-              {
-                flex: 1,
-                backgroundColor: theme.input,
-                color: theme.text,
-              },
-            ]}
+            style={[styles.input, { flex: 1, backgroundColor: theme.input, color: theme.text }]}
             placeholder="Số điện thoại"
             placeholderTextColor={theme.placeholder}
             value={phone}
@@ -110,10 +100,7 @@ const AddAddressScreen = () => {
         </View>
 
         <TextInput
-          style={[
-            styles.input,
-            { backgroundColor: theme.input, color: theme.text },
-          ]}
+          style={[styles.input, { backgroundColor: theme.input, color: theme.text }]}
           placeholder="Số nhà, tên đường"
           placeholderTextColor={theme.placeholder}
           value={street}
@@ -121,10 +108,7 @@ const AddAddressScreen = () => {
         />
 
         <TextInput
-          style={[
-            styles.input,
-            { backgroundColor: theme.input, color: theme.text },
-          ]}
+          style={[styles.input, { backgroundColor: theme.input, color: theme.text }]}
           placeholder="Tỉnh/Thành phố"
           placeholderTextColor={theme.placeholder}
           value={province}
@@ -144,9 +128,9 @@ const AddAddressScreen = () => {
           />
         </View>
 
-        {/* Nút thêm */}
+        {/* Button */}
         <TouchableOpacity
-          style={[styles.button,{ backgroundColor: getThemeColor('#FF4500', '#990000') }]}
+          style={[styles.button, { backgroundColor: getThemeColor('#FF4500', '#990000') }]}
           onPress={handleSave}
         >
           <Text style={styles.buttonText}>Thêm địa chỉ</Text>

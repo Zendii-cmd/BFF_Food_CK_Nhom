@@ -137,7 +137,6 @@ const PaymentScreen = () => {
                 selectMode: true,
                 onSelect: (method) => {
                   setSelectedPayment(method);
-                  fetchDefaultPaymentMethod();
                 },
               })
             }

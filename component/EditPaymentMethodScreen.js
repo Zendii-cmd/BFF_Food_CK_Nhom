@@ -97,14 +97,7 @@ const AddEditPaymentMethodScreen = () => {
             {editItem ? 'Chỉnh sửa phương thức' : 'Thêm phương thức'}
           </Text>
 
-          {/* Nút bật tắt Dark Mode */}
-          <TouchableOpacity onPress={toggleDarkMode} style={{ marginLeft: 'auto' }}>
-            <Ionicons
-              name={isDarkMode ? 'sunny' : 'moon'}
-              size={24}
-              color={theme.text}
-            />
-          </TouchableOpacity>
+          
         </View>
 
         <TextInput

@@ -1,10 +1,19 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Switch, Alert, SafeAreaView } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  Switch,
+  Alert,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context'; // ✅ đúng thư viện
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../Contexts/ThemeProvider'; // chỉnh lại path nếu cần
 import { lightTheme, darkTheme } from '../Contexts/theme'; // chỉnh lại path nếu cần
-import {authApi} from '../API/auth'; // chỉnh lại path nếu cần
+import { authApi } from '../API/auth'; // chỉnh lại path nếu cần
 
 const EditAddressScreen = ({ route }) => {
   const navigation = useNavigation();
@@ -16,7 +25,7 @@ const EditAddressScreen = ({ route }) => {
   const [province, setProvince] = useState(initialAddress.thanhPho);
   const [isDefault, setIsDefault] = useState(initialAddress.macDinh);
 
-  const { isDarkMode, toggleDarkMode } = useTheme();
+  const { isDarkMode } = useTheme();
   const theme = isDarkMode ? darkTheme : lightTheme;
 
   const handleSave = async () => {
@@ -24,7 +33,7 @@ const EditAddressScreen = ({ route }) => {
       const data = {
         tenNguoiNhan: name,
         soDienThoai: phone,
-        diaChiChiTietChiTiet: street,
+        diaChiChiTiet: street, // ✅ sửa lỗi key
         thanhPho: province,
       };
 
@@ -67,15 +76,15 @@ const EditAddressScreen = ({ route }) => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }} edges={['top']}>
       <View style={[styles.container, { backgroundColor: theme.background }]}>
         {/* Header */}
-        <View style={styles.header}>
-          <Ionicons name="arrow-back" size={24} color={theme.text} onPress={() => navigation.goBack()} />
+        <View style={[styles.header, { borderBottomColor: theme.border, borderBottomWidth: 1 }]}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons name="arrow-back" size={24} color={theme.text} />
+          </TouchableOpacity>
           <Text style={[styles.headerText, { color: theme.text }]}>Chỉnh sửa địa chỉ</Text>
         </View>
-
-        
 
         {/* Form */}
         <TextInput
@@ -117,7 +126,12 @@ const EditAddressScreen = ({ route }) => {
 
         <View style={styles.switchContainer}>
           <Text style={{ color: theme.text }}>Đặt làm địa chỉ mặc định</Text>
-          <Switch value={isDefault} onValueChange={setIsDefault} />
+          <Switch
+            value={isDefault}
+            onValueChange={setIsDefault}
+            thumbColor={isDarkMode ? '#fff' : '#fff'}
+            trackColor={{ false: '#ccc', true: theme.primary }}
+          />
         </View>
 
         <TouchableOpacity style={styles.button} onPress={handleSave}>
@@ -140,7 +154,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
+    paddingBottom: 10,
   },
   headerText: {
     marginLeft: 10,

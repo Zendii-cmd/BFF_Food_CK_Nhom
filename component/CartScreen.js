@@ -26,8 +26,6 @@ const CartScreen = ({ navigation }) => {
     const fetchCart = async () => {
       try {
         const data = await authApi.getCart();
-        console.log('Cart data:', data.mucGioHang);
-
         setCart(data.mucGioHang);
         setTongTien(data.tongTien);
       } catch (error) {
